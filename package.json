@@ -1,0 +1,42 @@
+{
+  "name": "graph-fns",
+  "version": "0.0.0",
+  "description": "A utility library for working with graphs.",
+  "repository": "github:haydn/graph-fns",
+  "keywords": [
+    "graph",
+    "utility",
+    "graph theory",
+    "networks"
+  ],
+  "main": "cjs/index.js",
+  "author": "Haydn Ewers",
+  "license": "MIT",
+  "private": false,
+  "engines": {
+    "node": "10"
+  },
+  "scripts": {
+    "build": "yarn build:declaration && yarn build:cjs && yarn build:umd && yarn build:esm",
+    "build:declaration": "tsc index.ts --downlevelIteration --declaration --emitDeclarationOnly",
+    "build:cjs": "tsc index.ts --downlevelIteration --target ES2015 --module CommonJS --outDir cjs",
+    "build:umd": "tsc index.ts --downlevelIteration --target ES2015 --module UMD --outDir umd",
+    "build:esm": "tsc index.ts --target ESNext --module ESNext --outDir esm",
+    "test": "tsc test.ts --downlevelIteration --lib ES2015 && node test.js",
+    "release": "np"
+  },
+  "files": [
+    "index.d.ts",
+    "index.js.flow",
+    "cjs/index.js",
+    "umd/index.js",
+    "esm/index.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^14.14.12",
+    "np": "^7.0.0",
+    "typescript": "^4.1.3"
+  }
+}
