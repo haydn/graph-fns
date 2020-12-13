@@ -103,4 +103,49 @@ const isCyclic = (graph: Graph): boolean => {
   return false;
 };
 
-export { Graph, D3Graph, isCyclic, fromD3, toD3 };
+const getInDegrees = (graph: Graph): Array<number> => {
+  const result: Array<number> = [];
+  for (let i = 0; i < graph.size; i++) {
+    result[i] = 0;
+  }
+  for (let u = 0; u < graph.size; u++) {
+    for (let v = 0; v < graph.size; v++) {
+      result[v] += graph.adjacencyMatrix[u][v];
+    }
+  }
+  return result;
+};
+
+const topologicalSort = (graph: Graph): Array<number> => {
+  if (isCyclic(graph)) throw "Cannot sort a graph that contains cycles.";
+
+  const result: Array<number> = [];
+  const visited: Set<number> = new Set();
+  const queue: Array<number> = [];
+  const inDegree = getInDegrees(graph);
+  
+  for (let i = 0; i < graph.size; i++) {
+    if (inDegree[i] === 0) {
+      queue.push(i);
+      visited.add(i);
+    }
+  }
+  
+  while (queue.length > 0) {
+    const v = queue.shift();
+    result.push(v);
+    for (let i = 0; i < graph.size; i++) {
+      if (graph.adjacencyMatrix[v][i] > 0 && !visited.has(i)) {
+        inDegree[i] -= graph.adjacencyMatrix[v][i];
+        if (inDegree[i] <= 0) {
+          queue.push(i);
+          visited.add(i);
+        }
+      }
+    }
+  }
+
+  return result;
+};
+
+export { Graph, D3Graph, isCyclic, topologicalSort, fromD3, toD3 };

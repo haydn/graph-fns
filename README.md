@@ -66,6 +66,16 @@ declare const isCyclic: (graph: Graph) => boolean;
 Returns `true` if the graph provided contains any cycles (this includes "loops"
 — an edge that starts and ends at the same vertex), otherwise returns `false`.
 
+### topologicalSort
+
+```ts
+declare const topologicalSort: (graph: Graph) => Array<number>;
+```
+
+Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns an
+array of the graph's vertices sorted using a
+[topological sort](https://en.wikipedia.org/wiki/Topological_sorting).
+
 ### fromD3
 
 ```ts
@@ -128,10 +138,9 @@ This representation of a graph is convinient for using with
 
 ## Roadmap
 
-1.  Topological sort function.
-2.  Allow arbitrary data associated with nodes and links that can be preserved
+1.  Allow arbitrary data associated with nodes and links that can be preserved
     when converting between `Graph` and `D3Graph` objects.
-3.  Better docs with visualisations to explain the concepts for anyone not
+2.  Better docs with visualisations to explain the concepts for anyone not
     familiar with graph theory.
-4.  Edge weights.
-5.  More helpful functions!
+3.  Edge weights.
+4.  More helpful functions!

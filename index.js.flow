@@ -16,3 +16,4 @@ declare export type D3Graph = {
 declare export function toD3(graph: Graph): D3Graph;
 declare export function fromD3(graph: D3Graph): Graph;
 declare export function isCyclic(graph: Graph): boolean;
+declare export function topologicalSort(graph: Graph): Array<number>;

@@ -1,4 +1,4 @@
-import { fromD3, isCyclic, toD3 } from "./index";
+import { fromD3, isCyclic, toD3, topologicalSort } from "./index";
 
 import { strict as assert } from "assert";
 
@@ -85,6 +85,71 @@ assert.equal(
   }),
   true
 );
+
+assert.deepEqual(
+  topologicalSort({
+    size: 1,
+    adjacencyMatrix: [[0]],
+  }),
+  [0]
+);
+
+assert.deepEqual(
+  topologicalSort({
+    size: 3,
+    adjacencyMatrix: [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ],
+  }),
+  [0, 1, 2]
+);
+
+assert.deepEqual(
+  topologicalSort({
+    size: 3,
+    adjacencyMatrix: [
+      [0, 1, 0],
+      [0, 0, 0],
+      [1, 0, 0],
+    ],
+  }),
+  [2, 0, 1]
+);
+
+assert.deepEqual(
+  topologicalSort({
+    size: 3,
+    adjacencyMatrix: [
+      [0, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+    ],
+  }),
+  [1, 2, 0]
+);
+
+assert.deepEqual(
+  topologicalSort({
+    size: 2,
+    adjacencyMatrix: [
+      [0, 0],
+      [10, 0],
+    ],
+  }),
+  [1, 0]
+);
+
+assert.throws(() => {
+  topologicalSort({
+    size: 2,
+    adjacencyMatrix: [
+      [0, 1],
+      [1, 0],
+    ],
+  });
+});
 
 assert.deepEqual(
   fromD3({
