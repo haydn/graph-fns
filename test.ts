@@ -3,9 +3,9 @@ import {
   addVertex,
   create,
   fromD3,
-  inDegrees,
+  indegrees,
   isCyclic,
-  outDegrees,
+  outdegrees,
   removeEdge,
   removeVertex,
   toD3,
@@ -115,11 +115,11 @@ test("fromD3", (t) => {
   );
 });
 
-test("inDegrees", (t) => {
+test("indegrees", (t) => {
   t.plan(1);
 
   t.deepEqual(
-    inDegrees({
+    indegrees({
       size: 3,
       adjacencyMatrix: {
         a: { a: 1, b: 1, c: 1 },
@@ -223,11 +223,11 @@ test("isCyclic", (t) => {
   );
 });
 
-test("outDegrees", (t) => {
+test("outdegrees", (t) => {
   t.plan(1);
 
   t.deepEqual(
-    outDegrees({
+    outdegrees({
       size: 3,
       adjacencyMatrix: {
         a: { a: 1, b: 1, c: 1 },

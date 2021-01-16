@@ -94,7 +94,7 @@ const fromD3 = (d3Graph: D3Graph): Graph => {
   };
 };
 
-const inDegrees = (graph: Graph): { [id: string]: number } => {
+const indegrees = (graph: Graph): { [id: string]: number } => {
   const result: { [id: string]: number } = {};
   for (let i in graph.adjacencyMatrix) result[i] = 0;
   for (let u in graph.adjacencyMatrix) {
@@ -141,7 +141,7 @@ const _isCyclic = (
   return false;
 };
 
-const outDegrees = (graph: Graph): { [id: string]: number } => {
+const outdegrees = (graph: Graph): { [id: string]: number } => {
   const result: { [id: string]: number } = {};
   for (let i in graph.adjacencyMatrix) result[i] = 0;
   for (let u in graph.adjacencyMatrix) {
@@ -214,10 +214,10 @@ const topologicalSort = (graph: Graph): Array<string> => {
   const result: Array<string> = [];
   const visited: Set<string> = new Set();
   const queue: Array<string> = [];
-  const inDegree = inDegrees(graph);
+  const indegree = indegrees(graph);
 
   for (let i in graph.adjacencyMatrix) {
-    if (inDegree[i] === 0) {
+    if (indegree[i] === 0) {
       queue.push(i);
       visited.add(i);
     }
@@ -228,8 +228,8 @@ const topologicalSort = (graph: Graph): Array<string> => {
     result.push(v);
     for (let i in graph.adjacencyMatrix) {
       if (graph.adjacencyMatrix[v][i] > 0 && !visited.has(i)) {
-        inDegree[i] -= graph.adjacencyMatrix[v][i];
-        if (inDegree[i] <= 0) {
+        indegree[i] -= graph.adjacencyMatrix[v][i];
+        if (indegree[i] <= 0) {
           queue.push(i);
           visited.add(i);
         }
@@ -247,9 +247,9 @@ export {
   addVertex,
   create,
   fromD3,
-  inDegrees,
+  indegrees,
   isCyclic,
-  outDegrees,
+  outdegrees,
   removeEdge,
   removeVertex,
   toD3,
