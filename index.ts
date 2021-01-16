@@ -55,10 +55,7 @@ const addVertex = (graph: Graph, vertex: string): Graph => {
   };
 };
 
-const create = (
-  size: number = 0,
-  id: (i: number) => string = (i) => i.toString(10)
-): Graph => {
+const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(10)): Graph => {
   const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
 
   for (let i = 0; i < size; i++) {
@@ -123,7 +120,7 @@ const _isCyclic = (
   graph: Graph,
   visited: Set<string>,
   path: Set<string>,
-  vertex: string
+  vertex: string,
 ): boolean => {
   visited.add(vertex);
   path.add(vertex);

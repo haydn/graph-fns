@@ -26,7 +26,7 @@ test("addEdge", (t) => {
           b: { a: 0, b: 0 },
         },
       },
-      ["a", "b"]
+      ["a", "b"],
     ),
     {
       size: 2,
@@ -34,7 +34,7 @@ test("addEdge", (t) => {
         a: { a: 0, b: 1 },
         b: { a: 0, b: 0 },
       },
-    }
+    },
   );
 });
 
@@ -47,14 +47,14 @@ test("addVertex", (t) => {
         size: 0,
         adjacencyMatrix: {},
       },
-      "a"
+      "a",
     ),
     {
       size: 1,
       adjacencyMatrix: {
         a: { a: 0 },
       },
-    }
+    },
   );
 
   t.deepEqual(
@@ -65,7 +65,7 @@ test("addVertex", (t) => {
           a: { a: 0 },
         },
       },
-      "b"
+      "b",
     ),
     {
       size: 2,
@@ -73,7 +73,7 @@ test("addVertex", (t) => {
         a: { a: 0, b: 0 },
         b: { a: 0, b: 0 },
       },
-    }
+    },
   );
 });
 
@@ -88,7 +88,7 @@ test("create", (t) => {
         "0!": { "0!": 0, "1!": 0 },
         "1!": { "0!": 0, "1!": 0 },
       },
-    }
+    },
   );
 });
 
@@ -111,7 +111,7 @@ test("fromD3", (t) => {
         b: { a: 0, b: 0, c: 0 },
         c: { a: 0, b: 0, c: 0 },
       },
-    }
+    },
   );
 });
 
@@ -127,7 +127,7 @@ test("inDegrees", (t) => {
         c: { a: 0, b: 0, c: 0 },
       },
     }),
-    { a: 1, b: 2, c: 1 }
+    { a: 1, b: 2, c: 1 },
   );
 });
 
@@ -141,7 +141,7 @@ test("isCyclic", (t) => {
         a: { a: 0 },
       },
     }),
-    false
+    false,
   );
 
   t.equal(
@@ -152,7 +152,7 @@ test("isCyclic", (t) => {
         b: { a: 0, b: 0 },
       },
     }),
-    false
+    false,
   );
 
   t.equal(
@@ -163,7 +163,7 @@ test("isCyclic", (t) => {
         b: { a: 0, b: 0 },
       },
     }),
-    false
+    false,
   );
 
   t.equal(
@@ -175,7 +175,7 @@ test("isCyclic", (t) => {
         c: { a: 0, b: 0, c: 0 },
       },
     }),
-    false
+    false,
   );
 
   t.equal(
@@ -185,7 +185,7 @@ test("isCyclic", (t) => {
         a: { a: 1 },
       },
     }),
-    true
+    true,
   );
 
   t.equal(
@@ -196,7 +196,7 @@ test("isCyclic", (t) => {
         b: { a: 1, b: 0 },
       },
     }),
-    true
+    true,
   );
 
   t.equal(
@@ -208,7 +208,7 @@ test("isCyclic", (t) => {
         c: { a: 1, b: 0, c: 0 },
       },
     }),
-    true
+    true,
   );
 
   t.equal(
@@ -219,7 +219,7 @@ test("isCyclic", (t) => {
         b: { a: 0, b: 1 },
       },
     }),
-    true
+    true,
   );
 });
 
@@ -235,7 +235,7 @@ test("outDegrees", (t) => {
         c: { a: 0, b: 0, c: 0 },
       },
     }),
-    { a: 3, b: 1, c: 0 }
+    { a: 3, b: 1, c: 0 },
   );
 });
 
@@ -252,7 +252,7 @@ test("removeEdge", (t) => {
           c: { a: 1, b: 0, c: 0 },
         },
       },
-      ["a", "b"]
+      ["a", "b"],
     ),
     {
       size: 3,
@@ -261,7 +261,7 @@ test("removeEdge", (t) => {
         b: { a: 0, b: 0, c: 1 },
         c: { a: 1, b: 0, c: 0 },
       },
-    }
+    },
   );
 });
 
@@ -278,7 +278,7 @@ test("removeVertex", (t) => {
           c: { a: 1, b: 0, c: 0 },
         },
       },
-      "b"
+      "b",
     ),
     {
       size: 2,
@@ -286,7 +286,7 @@ test("removeVertex", (t) => {
         a: { a: 0, c: 0 },
         c: { a: 1, c: 0 },
       },
-    }
+    },
   );
 });
 
@@ -308,7 +308,7 @@ test("toD3", (t) => {
         { source: "a", target: "b" },
         { source: "a", target: "c" },
       ],
-    }
+    },
   );
 });
 
@@ -322,7 +322,7 @@ test("topologicalSort", (t) => {
         a: { a: 0 },
       },
     }),
-    ["a"]
+    ["a"],
   );
 
   t.deepEqual(
@@ -334,7 +334,7 @@ test("topologicalSort", (t) => {
         c: { a: 0, b: 0, c: 0 },
       },
     }),
-    ["a", "b", "c"]
+    ["a", "b", "c"],
   );
 
   t.deepEqual(
@@ -346,7 +346,7 @@ test("topologicalSort", (t) => {
         c: { a: 1, b: 0, c: 0 },
       },
     }),
-    ["c", "a", "b"]
+    ["c", "a", "b"],
   );
 
   t.deepEqual(
@@ -358,7 +358,7 @@ test("topologicalSort", (t) => {
         c: { a: 1, b: 0, c: 0 },
       },
     }),
-    ["b", "c", "a"]
+    ["b", "c", "a"],
   );
 
   t.deepEqual(
@@ -369,7 +369,7 @@ test("topologicalSort", (t) => {
         b: { a: 10, b: 0 },
       },
     }),
-    ["b", "a"]
+    ["b", "a"],
   );
 
   t.throws(() => {
