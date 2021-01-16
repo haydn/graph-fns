@@ -2,6 +2,7 @@
 /esm
 /index.d.ts
 /index.js
+/index.js.flow
 /node_modules
 /test.js
 /umd
