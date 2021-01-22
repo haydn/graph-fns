@@ -23,7 +23,8 @@
     "build:umd": "tsc index.ts --downlevelIteration --target ES2015 --module UMD --outDir umd",
     "build:esm": "tsc index.ts --target ESNext --module ESNext --outDir esm",
     "release": "np",
-    "test": "prettier -c index.ts README.md test.ts && tsc test.ts --downlevelIteration --lib ES2015 --esModuleInterop && node test.js"
+    "test": "prettier -c index.ts README.md test.ts && tsc test.ts --downlevelIteration --lib ES2015 --esModuleInterop && node test.js",
+    "version": "yarn build"
   },
   "files": [
     "index.d.ts",
