@@ -14,6 +14,7 @@
 - Flow and TypeScript declarations included.
 - CommonJS, UMD and ESM modules provided.
 - Zero dependencies.
+- D3.js interoperability.
 
 ## Installation
 
@@ -32,66 +33,46 @@ npm install graph-fns
 ## Usage
 
 ```js
-import { isCyclic, fromD3 } from "graph-fns";
+import { create, addEdge, isCyclic, topologicalSort } from "graph-fns";
 
-const graphA = fromD3({
-  nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
-  links: [
-    { source: "a", target: "b" },
-    { source: "b", target: "c" },
-  ],
-});
+let graphA = create(3, (i) => String.fromCharCode(65 + i));
+//=> [Graph] { A, B, C }
 
-const graphB = fromD3({
-  nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
-  links: [
-    { source: "a", target: "b" },
-    { source: "b", target: "c" },
-    { source: "c", target: "a" },
-  ],
-});
+graphA = addEdge(graphA, ["A", "C"]);
+//=> [Graph] { A -> C, B }
 
-isCyclic(graphA); // false
-isCyclic(graphB); // true
+graphA = addEdge(graphA, ["B", "A"]);
+//=> [Graph] { B -> A -> C }
+
+isCyclic(graphA);
+//=> false
+
+topologicalSort(graphA);
+//=> ["B", "A", "C"]
+
+let graphB = create(3, (i) => String.fromCharCode(65 + i));
+//=> [Graph] { A, B, C }
+
+graphB = addEdge(graphB, ["A", "B"]);
+//=> [Graph] { A -> B, C }
+
+graphB = addEdge(graphB, ["B", "C"]);
+//=> [Graph] { A -> B -> C }
+
+graphB = addEdge(graphB, ["C", "A"]);
+//=> [Graph] { A -> B -> C -> A }
+
+isCyclic(graphB);
+//=> true
 ```
 
-## API
+## Terminology
 
-### isCyclic
-
-```ts
-declare const isCyclic: (graph: Graph) => boolean;
-```
-
-Returns `true` if the graph provided contains any cycles (this includes "loops" — an edge that starts and ends at the same vertex), otherwise returns `false`.
-
-### topologicalSort
-
-```ts
-declare const topologicalSort: (graph: Graph) => Array<number>;
-```
-
-Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns an array of the graph's vertices sorted using a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting).
-
-### fromD3
-
-```ts
-declare const fromD3: (graph: D3Graph) => Graph;
-```
-
-Converts a graph from a representation that is convinient for using with [D3.js force-directed graphs](https://github.com/d3/d3-force) into the representation that _graph-fns_ uses.
-
-**Note**: Currently, this is a lossy process. All ID's will be lost along with any "metadata" associated with nodes or links.
-
-### toD3
-
-```ts
-declare const toD3: (graph: Graph) => D3Graph;
-```
-
-Converts a graph from the representation _graph-fns_ uses into a representation that is convinient for using with [D3.js force-directed graphs](https://github.com/d3/d3-force).
-
-**Note**: This function will generate ID's — it will not use any ID's that may have been provided in an eariler call to `fromD3()`.
+| Term | Synonym(s) | Description |
+| --- | --- | --- |
+| graph | network | A system of vertices connected in pairs by edges. ([Wikipedia](<https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)>)) |
+| vertex | node | The fundamental unit of which graphs are formed. ([Wikipedia](<https://en.wikipedia.org/wiki/Vertex_(graph_theory)>)) |
+| edge | link | A connection between two vertices in a graph. ([Wikipedia](<https://en.wikipedia.org/wiki/Edge_(graph_theory)>)) |
 
 ## Types
 
@@ -100,11 +81,11 @@ Converts a graph from the representation _graph-fns_ uses into a representation 
 ```ts
 declare type Graph = {
   size: number;
-  adjacencyMatrix: Array<Array<number>>;
+  adjacencyMatrix: { [u: string]: { [v: string]: number } };
 };
 ```
 
-This is the representation of a graph that _graph-fns_ uses. It includes an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix) to describe the number of edges between each vertex (i.e. a value of `0` indicates there is no edge between the two vertices and a value of `1` indicates there's a single edge connecting them).
+This is the representation of a graph that _graph-fns_ uses. It includes an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix) to describe the number of edges between each vertex. A value of `0` indicates there is no edge between the two vertices and a value of `1` indicates there's a single edge connecting them from `u` to `v`.
 
 ### D3Graph
 
@@ -122,9 +103,108 @@ declare type D3Graph = {
 
 This representation of a graph is convinient for using with [D3.js force-directed graphs](https://github.com/d3/d3-force).
 
+## API
+
+### addEdge
+
+```ts
+declare const addEdge: (graph: Graph, edge: [string, string]) => Graph;
+```
+
+Adds a new edge to the graph. The order of the vertices in the edge determine the direction of the edge — the edge will start at the first vertex and end at the second (`[start, end]`).
+
+### addVertex
+
+```ts
+declare const addVertex: (graph: Graph, vertex: string) => Graph;
+```
+
+Adds a new vertex to the graph. The new vertex will not have any edges connecting it to existing vertices in the graph.
+
+### create
+
+```ts
+declare const create: (size?: number, id?: (i: number) => string) => Graph;
+```
+
+Creates a new graph. The new graph can be seeded with an optional number of vertices, but it will not contain any edges.
+
+The `size` argument defines how many vertices with which to seed the graph. Additional vertices can be added using [addVertex](#addVertex), but it is more effecient to create them upfront when possible.
+
+The `id` function can be provided to specify how to generate ID's for each of the seed vertices. The `i` argument passed is the "index" of the vertex being created — a unique positive integer starting at 0, incrementing by 1 for each vertex. The default function will simply convert `i` to a string (`(i) => i.toString(10)`) resulting in ID's like: `"0"`, `"1"`, `"2"` etc.
+
+### fromD3
+
+```ts
+declare const fromD3: (graph: D3Graph) => Graph;
+```
+
+Converts a graph from a [D3Graph](#d3graph) representation into a [Graph](#graph) representation.
+
+**Note**: Any data associated with nodes or links in the D3Graph representation will be discarded.
+
+### indegrees
+
+```ts
+declare const indegrees: (graph: Graph) => { [id: string]: number };
+```
+
+Returns the graph's vertices mapped to their [indegree](https://en.wikipedia.org/wiki/Indegree) (the number of edges ending at the vertex).
+
+### isCyclic
+
+```ts
+declare const isCyclic: (graph: Graph) => boolean;
+```
+
+Returns `true` if the graph provided contains any [cycles](<https://en.wikipedia.org/wiki/Cycle_(graph_theory)>) (including "loops" — when an edge that starts and ends at the same vertex), otherwise returns `false`.
+
+### outdegrees
+
+```ts
+declare const outdegrees: (graph: Graph) => { [id: string]: number };
+```
+
+Returns the graph's vertices mapped to their [outdegree](https://en.wikipedia.org/wiki/Outdegree) (the number of edges starting at the vertex).
+
+### removeEdge
+
+```ts
+declare const removeEdge: (graph: Graph, edge: [string, string]) => Graph;
+```
+
+Removes an edge from a graph.
+
+### removeVertex
+
+```ts
+declare const removeVertex: (graph: Graph, vertex: string) => Graph;
+```
+
+Removes a vertex from a graph.
+
+### toD3
+
+```ts
+declare const toD3: (graph: Graph) => D3Graph;
+```
+
+Converts a graph from a [Graph](#graph) representation into a [D3Graph](#d3graph) representation.
+
+### topologicalSort
+
+```ts
+declare const topologicalSort: (graph: Graph) => Array<string>;
+```
+
+Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns an array of the graph's vertices sorted using a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting).
+
 ## Roadmap
 
-1.  Allow arbitrary data associated with nodes and links that can be preserved when converting between `Graph` and `D3Graph` objects.
-2.  Better docs with visualisations to explain the concepts for anyone not familiar with graph theory.
-3.  Edge weights.
-4.  More helpful functions!
+1. Interactive demo.
+2. Graphics in the README to better explain the concepts for anyone not familiar with graph theory.
+3. Submodules so functions can be imported individually.
+4. Support for undirected graphs.
+5. Weights for edges & nodes.
+6. Pathfinding algorithms.
+7. Functional programming friendly variations of the functions (argument order reversed to support currying).
