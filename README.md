@@ -16,6 +16,12 @@
 - Zero dependencies.
 - D3.js interoperability.
 
+## Demo
+
+https://h2788.csb.app/
+
+![](screenshot.png)
+
 ## Installation
 
 Yarn:
