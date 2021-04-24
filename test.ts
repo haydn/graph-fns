@@ -2,6 +2,7 @@ import {
   addEdge,
   addVertex,
   create,
+  edges,
   fromD3,
   indegrees,
   isCyclic,
@@ -11,6 +12,7 @@ import {
   toD3,
   topologicalSort,
   transpose,
+  vertices,
 } from "./index";
 
 import test from "tape";
@@ -90,6 +92,25 @@ test("create", (t) => {
         "1!": { "0!": 0, "1!": 0 },
       },
     },
+  );
+});
+
+test("edges", (t) => {
+  t.plan(1);
+
+  t.deepEqual(
+    edges({
+      size: 3,
+      adjacencyMatrix: {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 0, b: 0, c: 1 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+    }),
+    [
+      ["a", "b"],
+      ["b", "c"],
+    ],
   );
 });
 
@@ -455,5 +476,21 @@ test("transpose", (t) => {
         c: { a: 1, b: 1, c: 1 },
       },
     },
+  );
+});
+
+test("vertices", (t) => {
+  t.plan(1);
+
+  t.deepEqual(
+    vertices({
+      size: 3,
+      adjacencyMatrix: {
+        a: { a: 0, b: 0, c: 0 },
+        b: { a: 0, b: 0, c: 0 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+    }),
+    ["a", "b", "c"],
   );
 });

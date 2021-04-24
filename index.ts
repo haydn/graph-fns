@@ -73,6 +73,20 @@ const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(
   };
 };
 
+const edges = (graph: Graph): Array<[string, string]> => {
+  const result = [];
+
+  for (let u in graph.adjacencyMatrix) {
+    for (let v in graph.adjacencyMatrix[u]) {
+      for (let i = 0; i < graph.adjacencyMatrix[u][v]; i++) {
+        result.push([u, v]);
+      }
+    }
+  }
+
+  return result;
+};
+
 const fromD3 = (d3Graph: D3Graph): Graph => {
   const size = d3Graph.nodes.length;
   const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
@@ -256,12 +270,15 @@ const transpose = (graph: Graph): Graph => {
   };
 };
 
+const vertices = (graph: Graph): Array<string> => Object.keys(graph.adjacencyMatrix);
+
 export {
   D3Graph,
   Graph,
   addEdge,
   addVertex,
   create,
+  edges,
   fromD3,
   indegrees,
   isCyclic,
@@ -271,4 +288,5 @@ export {
   toD3,
   topologicalSort,
   transpose,
+  vertices,
 };

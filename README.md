@@ -139,6 +139,14 @@ The `size` argument defines how many vertices with which to seed the graph. Addi
 
 The `id` function can be provided to specify how to generate ID's for each of the seed vertices. The `i` argument passed is the "index" of the vertex being created — a unique positive integer starting at 0, incrementing by 1 for each vertex. The default function will simply convert `i` to a string (`(i) => i.toString(10)`) resulting in ID's like: `"0"`, `"1"`, `"2"` etc.
 
+### edges
+
+```ts
+declare const edges: (graph: Graph) => Array<[string, string]>;
+```
+
+Returns an array of the edges in the graph.
+
 ### fromD3
 
 ```ts
@@ -226,6 +234,14 @@ graph = addEdge(graph, ["B", "C"]);
 graph = transpose(graph);
 //=> [Graph] { A <- B <- C }
 ```
+
+### vertices
+
+```ts
+declare const vertices: (graph: Graph) => Array<string>;
+```
+
+Returns an array of the vertices in the graph.
 
 ## Roadmap
 
