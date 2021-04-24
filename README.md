@@ -205,6 +205,28 @@ declare const topologicalSort: (graph: Graph) => Array<string>;
 
 Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns an array of the graph's vertices sorted using a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting).
 
+### transpose
+
+```ts
+declare const transpose: (graph: Graph) => Graph;
+```
+
+Flips the orientation of all edges in a directed graph.
+
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> [Graph] { A, B, C }
+
+graph = addEdge(graph, ["A", "B"]);
+//=> [Graph] { A -> B, C }
+
+graph = addEdge(graph, ["B", "C"]);
+//=> [Graph] { A -> B -> C }
+
+graph = transpose(graph);
+//=> [Graph] { A <- B <- C }
+```
+
 ## Roadmap
 
 1. Interactive demo.

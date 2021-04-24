@@ -10,6 +10,7 @@ import {
   removeVertex,
   toD3,
   topologicalSort,
+  transpose,
 } from "./index";
 
 import test from "tape";
@@ -381,4 +382,78 @@ test("topologicalSort", (t) => {
       },
     });
   });
+});
+
+test("transpose", (t) => {
+  t.plan(4);
+
+  t.deepEqual(
+    transpose({
+      size: 1,
+      adjacencyMatrix: {
+        a: { a: 0 },
+      },
+    }),
+    {
+      size: 1,
+      adjacencyMatrix: {
+        a: { a: 0 },
+      },
+    },
+  );
+
+  t.deepEqual(
+    transpose({
+      size: 2,
+      adjacencyMatrix: {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+    }),
+    {
+      size: 2,
+      adjacencyMatrix: {
+        a: { a: 0, b: 0 },
+        b: { a: 1, b: 0 },
+      },
+    },
+  );
+
+  t.deepEqual(
+    transpose({
+      size: 3,
+      adjacencyMatrix: {
+        a: { a: 0, b: 1, c: 1 },
+        b: { a: 0, b: 0, c: 1 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+    }),
+    {
+      size: 3,
+      adjacencyMatrix: {
+        a: { a: 0, b: 0, c: 0 },
+        b: { a: 1, b: 0, c: 0 },
+        c: { a: 1, b: 1, c: 0 },
+      },
+    },
+  );
+
+  t.deepEqual(
+    transpose({
+      size: 3,
+      adjacencyMatrix: {
+        a: { a: 1, b: 1, c: 1 },
+        b: { a: 1, b: 1, c: 1 },
+        c: { a: 1, b: 1, c: 1 },
+      },
+    }),
+    {
+      size: 3,
+      adjacencyMatrix: {
+        a: { a: 1, b: 1, c: 1 },
+        b: { a: 1, b: 1, c: 1 },
+        c: { a: 1, b: 1, c: 1 },
+      },
+    },
+  );
 });

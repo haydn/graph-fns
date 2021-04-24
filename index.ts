@@ -240,6 +240,22 @@ const topologicalSort = (graph: Graph): Array<string> => {
   return result;
 };
 
+const transpose = (graph: Graph): Graph => {
+  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+
+  for (let u in graph.adjacencyMatrix) {
+    adjacencyMatrix[u] = {};
+    for (let v in graph.adjacencyMatrix[u]) {
+      adjacencyMatrix[u][v] = graph.adjacencyMatrix[v][u];
+    }
+  }
+
+  return {
+    size: graph.size,
+    adjacencyMatrix,
+  };
+};
+
 export {
   D3Graph,
   Graph,
@@ -254,4 +270,5 @@ export {
   removeVertex,
   toD3,
   topologicalSort,
+  transpose,
 };
