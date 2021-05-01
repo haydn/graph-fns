@@ -179,10 +179,10 @@ Note: If the given graph contains cycles (checked with `isCyclic`), an error wil
 ### edges
 
 ```ts
-declare const edges: (graph: Graph) => Array<[string, string]>;
+declare const edges: (graph: Graph) => Set<[string, string]>;
 ```
 
-Returns an array of the edges in the graph.
+Returns the edges in the graph.
 
 ### fromD3
 
@@ -299,10 +299,10 @@ graph = transpose(graph);
 ### vertices
 
 ```ts
-declare const vertices: (graph: Graph) => Array<string>;
+declare const vertices: (graph: Graph) => Set<string>;
 ```
 
-Returns an array of the vertices in the graph.
+Returns the vertices in the graph.
 
 ## Roadmap
 

@@ -94,13 +94,13 @@ const descendants = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const edges = (graph: Graph): Array<[string, string]> => {
-  const result = [];
+const edges = (graph: Graph): Set<[string, string]> => {
+  const result: Set<[string, string]> = new Set([]);
 
   for (let u in graph) {
     for (let v in graph[u]) {
       if (graph[u][v] > 0) {
-        result.push([u, v]);
+        result.add([u, v]);
       }
     }
   }
@@ -303,7 +303,7 @@ const transpose = (graph: Graph): Graph => {
   return result;
 };
 
-const vertices = (graph: Graph): Array<string> => Object.keys(graph);
+const vertices = (graph: Graph): Set<string> => new Set(Object.keys(graph));
 
 export {
   D3Graph,
