@@ -128,6 +128,14 @@ declare const addVertex: (graph: Graph, vertex: string) => Graph;
 
 Adds a new vertex to the graph. The new vertex will not have any edges connecting it to existing vertices in the graph.
 
+### clone
+
+```ts
+declare const clone: (graph: Graph) => Graph;
+```
+
+Creates a copy of the graph.
+
 ### create
 
 ```ts

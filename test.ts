@@ -1,6 +1,7 @@
 import {
   addEdge,
   addVertex,
+  clone,
   create,
   edges,
   fromD3,
@@ -54,6 +55,20 @@ test("addVertex", (t) => {
       b: { a: 0, b: 0 },
     },
   );
+});
+
+test("clone", (t) => {
+  t.plan(4);
+
+  const orginal = {
+    a: { a: 0, b: 1 },
+    b: { a: 0, b: 0 },
+  };
+
+  t.deepEqual(clone(orginal), orginal);
+  t.notEqual(clone(orginal), orginal);
+  t.notEqual(clone(orginal).a, orginal.a);
+  t.notEqual(clone(orginal).b, orginal.b);
 });
 
 test("create", (t) => {

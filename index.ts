@@ -11,14 +11,7 @@ type D3Graph = {
 };
 
 const addEdge = (graph: Graph, edge: [string, string]): Graph => {
-  const result: Graph = {};
-
-  for (let u in graph) {
-    result[u] = {};
-    for (let v in graph[u]) {
-      result[u][v] = graph[u][v];
-    }
-  }
+  const result = clone(graph);
 
   result[edge[0]][edge[1]] += 1;
 
@@ -28,6 +21,16 @@ const addEdge = (graph: Graph, edge: [string, string]): Graph => {
 const addVertex = (graph: Graph, vertex: string): Graph => {
   if (graph[vertex]) return graph;
 
+  const result = clone(graph);
+
+  for (let v in result) result[v][vertex] = 0;
+  result[vertex] = {};
+  for (let v in result) result[vertex][v] = 0;
+
+  return result;
+};
+
+const clone = (graph: Graph): Graph => {
   const result: Graph = {};
 
   for (let u in graph) {
@@ -36,10 +39,6 @@ const addVertex = (graph: Graph, vertex: string): Graph => {
       result[u][v] = graph[u][v];
     }
   }
-
-  for (let v in result) result[v][vertex] = 0;
-  result[vertex] = {};
-  for (let v in result) result[vertex][v] = 0;
 
   return result;
 };
@@ -153,14 +152,7 @@ const outdegrees = (graph: Graph): { [id: string]: number } => {
 };
 
 const removeEdge = (graph: Graph, edge: [string, string]): Graph => {
-  const result: Graph = {};
-
-  for (let u in graph) {
-    result[u] = {};
-    for (let v in graph[u]) {
-      result[u][v] = graph[u][v];
-    }
-  }
+  const result = clone(graph);
 
   if (result[edge[0]][edge[1]] > 0) {
     result[edge[0]][edge[1]] -= 1;
@@ -252,6 +244,7 @@ export {
   Graph,
   addEdge,
   addVertex,
+  clone,
   create,
   edges,
   fromD3,
