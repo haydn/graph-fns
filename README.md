@@ -214,6 +214,14 @@ declare const removeVertex: (graph: Graph, vertex: string) => Graph;
 
 Removes a vertex from a graph.
 
+### size
+
+```ts
+declare const size: (graph: Graph) => number;
+```
+
+Returns the number of edges in the graph.
+
 ### toD3
 
 ```ts

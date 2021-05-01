@@ -11,6 +11,7 @@ import {
   outdegrees,
   removeEdge,
   removeVertex,
+  size,
   toD3,
   topologicalSort,
   transpose,
@@ -298,6 +299,29 @@ test("removeVertex", (t) => {
       a: { a: 0, c: 0 },
       c: { a: 1, c: 0 },
     },
+  );
+});
+
+test("size", (t) => {
+  t.plan(3);
+
+  t.equal(size({}), 0);
+
+  t.equal(
+    size({
+      a: { a: 1, b: 0 },
+      b: { a: 0, b: 0 },
+    }),
+    1,
+  );
+
+  t.equal(
+    size({
+      a: { a: 3, b: 0, c: 0 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 1, b: 0, c: 0 },
+    }),
+    2,
   );
 });
 

@@ -180,6 +180,20 @@ const removeVertex = (graph: Graph, vertex: string): Graph => {
   return result;
 };
 
+const size = (graph: Graph): number => {
+  let result = 0;
+
+  for (let u in graph) {
+    for (let v in graph[u]) {
+      if (graph[u][v] > 0) {
+        result += 1;
+      }
+    }
+  }
+
+  return result;
+};
+
 const toD3 = (graph: Graph): D3Graph => {
   const nodes = [];
   const links = [];
@@ -258,6 +272,7 @@ export {
   outdegrees,
   removeEdge,
   removeVertex,
+  size,
   toD3,
   topologicalSort,
   transpose,
