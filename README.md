@@ -128,6 +128,16 @@ declare const addVertex: (graph: Graph, vertex: string) => Graph;
 
 Adds a new vertex to the graph. The new vertex will not have any edges connecting it to existing vertices in the graph.
 
+### ancestors
+
+```ts
+declare const ancestors: (graph: Graph, vertex: string) => Set<string>;
+```
+
+Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), recursively finds all the vertices above the given vertex.
+
+Note: If the given graph contains cycles (checked with `isCyclic`), an error will be thrown.
+
 ### children
 
 ```ts
@@ -215,6 +225,14 @@ declare const outdegrees: (graph: Graph) => { [id: string]: number };
 ```
 
 Returns the graph's vertices mapped to their [outdegree](https://en.wikipedia.org/wiki/Outdegree) (the number of edges starting at the vertex).
+
+### parents
+
+```ts
+declare const parents: (graph: Graph, vertex: string) => Set<string>;
+```
+
+Returns all the vertices that are parents of the given vertex — there is an edge starting at the parent going to the given vertex. If there is an edge that both starts and ends at the given vertex, it will be considered a parent of itself and included in the result.
 
 ### removeEdge
 

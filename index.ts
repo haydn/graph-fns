@@ -30,6 +30,18 @@ const addVertex = (graph: Graph, vertex: string): Graph => {
   return result;
 };
 
+const ancestors = (graph: Graph, vertex: string): Set<string> => {
+  if (isCyclic(graph)) throw "Cannot retrieve ancestors in a graph that contains cycles.";
+
+  let result: Set<string> = new Set();
+
+  for (let parent of parents(graph, vertex)) {
+    result = new Set([...result, parent, ...ancestors(graph, parent)]);
+  }
+
+  return result;
+};
+
 const children = (graph: Graph, vertex: string): Set<string> => {
   const result: Set<string> = new Set();
 
@@ -181,6 +193,18 @@ const outdegrees = (graph: Graph): { [id: string]: number } => {
   return result;
 };
 
+const parents = (graph: Graph, vertex: string): Set<string> => {
+  const result: Set<string> = new Set();
+
+  for (let u in graph) {
+    if (graph[u][vertex] > 0) {
+      result.add(u);
+    }
+  }
+
+  return result;
+};
+
 const removeEdge = (graph: Graph, edge: [string, string]): Graph => {
   const result = clone(graph);
 
@@ -286,6 +310,7 @@ export {
   Graph,
   addEdge,
   addVertex,
+  ancestors,
   children,
   clone,
   create,
@@ -296,6 +321,7 @@ export {
   isCyclic,
   order,
   outdegrees,
+  parents,
   removeEdge,
   removeVertex,
   size,
