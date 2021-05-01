@@ -86,12 +86,13 @@ isCyclic(graphB);
 
 ```ts
 declare type Graph = {
-  size: number;
-  adjacencyMatrix: { [u: string]: { [v: string]: number } };
+  [u: string]: {
+    [v: string]: number;
+  };
 };
 ```
 
-This is the representation of a graph that _graph-fns_ uses. It includes an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix) to describe the number of edges between each vertex. A value of `0` indicates there is no edge between the two vertices and a value of `1` indicates there's a single edge connecting them from `u` to `v`.
+An [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix) that describes the edges between each vertex. A value of `0` indicates there is no edge between the two vertices and a value of `1` indicates there is an edge connecting them (directed from `u` to `v`).
 
 ### D3Graph
 

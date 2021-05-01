@@ -23,20 +23,14 @@ test("addEdge", (t) => {
   t.deepEqual(
     addEdge(
       {
-        size: 2,
-        adjacencyMatrix: {
-          a: { a: 0, b: 0 },
-          b: { a: 0, b: 0 },
-        },
+        a: { a: 0, b: 0 },
+        b: { a: 0, b: 0 },
       },
       ["a", "b"],
     ),
     {
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1 },
-        b: { a: 0, b: 0 },
-      },
+      a: { a: 0, b: 1 },
+      b: { a: 0, b: 0 },
     },
   );
 });
@@ -44,38 +38,20 @@ test("addEdge", (t) => {
 test("addVertex", (t) => {
   t.plan(2);
 
-  t.deepEqual(
-    addVertex(
-      {
-        size: 0,
-        adjacencyMatrix: {},
-      },
-      "a",
-    ),
-    {
-      size: 1,
-      adjacencyMatrix: {
-        a: { a: 0 },
-      },
-    },
-  );
+  t.deepEqual(addVertex({}, "a"), {
+    a: { a: 0 },
+  });
 
   t.deepEqual(
     addVertex(
       {
-        size: 1,
-        adjacencyMatrix: {
-          a: { a: 0 },
-        },
+        a: { a: 0 },
       },
       "b",
     ),
     {
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0 },
-        b: { a: 0, b: 0 },
-      },
+      a: { a: 0, b: 0 },
+      b: { a: 0, b: 0 },
     },
   );
 });
@@ -86,11 +62,8 @@ test("create", (t) => {
   t.deepEqual(
     create(2, (i) => `${i}!`),
     {
-      size: 2,
-      adjacencyMatrix: {
-        "0!": { "0!": 0, "1!": 0 },
-        "1!": { "0!": 0, "1!": 0 },
-      },
+      "0!": { "0!": 0, "1!": 0 },
+      "1!": { "0!": 0, "1!": 0 },
     },
   );
 });
@@ -100,12 +73,9 @@ test("edges", (t) => {
 
   t.deepEqual(
     edges({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1, c: 0 },
-        b: { a: 0, b: 0, c: 1 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 1, c: 0 },
+      b: { a: 0, b: 0, c: 1 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     [
       ["a", "b"],
@@ -127,12 +97,9 @@ test("fromD3", (t) => {
       ],
     }),
     {
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 1, b: 1, c: 1 },
-        b: { a: 0, b: 0, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     },
   );
 });
@@ -142,12 +109,9 @@ test("indegrees", (t) => {
 
   t.deepEqual(
     indegrees({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 1, b: 1, c: 1 },
-        b: { a: 0, b: 1, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 0, b: 1, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     { a: 1, b: 2, c: 1 },
   );
@@ -158,88 +122,64 @@ test("isCyclic", (t) => {
 
   t.equal(
     isCyclic({
-      size: 1,
-      adjacencyMatrix: {
-        a: { a: 0 },
-      },
+      a: { a: 0 },
     }),
     false,
   );
 
   t.equal(
     isCyclic({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0 },
-        b: { a: 0, b: 0 },
-      },
+      a: { a: 0, b: 0 },
+      b: { a: 0, b: 0 },
     }),
     false,
   );
 
   t.equal(
     isCyclic({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1 },
-        b: { a: 0, b: 0 },
-      },
+      a: { a: 0, b: 1 },
+      b: { a: 0, b: 0 },
     }),
     false,
   );
 
   t.equal(
     isCyclic({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1, c: 1 },
-        b: { a: 0, b: 0, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 1, c: 1 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     false,
   );
 
   t.equal(
     isCyclic({
-      size: 1,
-      adjacencyMatrix: {
-        a: { a: 1 },
-      },
+      a: { a: 1 },
     }),
     true,
   );
 
   t.equal(
     isCyclic({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1 },
-        b: { a: 1, b: 0 },
-      },
+      a: { a: 0, b: 1 },
+      b: { a: 1, b: 0 },
     }),
     true,
   );
 
   t.equal(
     isCyclic({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1, c: 0 },
-        b: { a: 0, b: 0, c: 1 },
-        c: { a: 1, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 1, c: 0 },
+      b: { a: 0, b: 0, c: 1 },
+      c: { a: 1, b: 0, c: 0 },
     }),
     true,
   );
 
   t.equal(
     isCyclic({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 1, b: 0 },
-        b: { a: 0, b: 1 },
-      },
+      a: { a: 1, b: 0 },
+      b: { a: 0, b: 1 },
     }),
     true,
   );
@@ -250,12 +190,9 @@ test("outdegrees", (t) => {
 
   t.deepEqual(
     outdegrees({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 1, b: 1, c: 1 },
-        b: { a: 0, b: 1, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 0, b: 1, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     { a: 3, b: 1, c: 0 },
   );
@@ -267,22 +204,16 @@ test("removeEdge", (t) => {
   t.deepEqual(
     removeEdge(
       {
-        size: 3,
-        adjacencyMatrix: {
-          a: { a: 0, b: 1, c: 0 },
-          b: { a: 0, b: 0, c: 1 },
-          c: { a: 1, b: 0, c: 0 },
-        },
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 0, b: 0, c: 1 },
+        c: { a: 1, b: 0, c: 0 },
       },
       ["a", "b"],
     ),
     {
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0, c: 0 },
-        b: { a: 0, b: 0, c: 1 },
-        c: { a: 1, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 0, c: 0 },
+      b: { a: 0, b: 0, c: 1 },
+      c: { a: 1, b: 0, c: 0 },
     },
   );
 });
@@ -293,21 +224,15 @@ test("removeVertex", (t) => {
   t.deepEqual(
     removeVertex(
       {
-        size: 3,
-        adjacencyMatrix: {
-          a: { a: 0, b: 1, c: 0 },
-          b: { a: 0, b: 0, c: 1 },
-          c: { a: 1, b: 0, c: 0 },
-        },
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 0, b: 0, c: 1 },
+        c: { a: 1, b: 0, c: 0 },
       },
       "b",
     ),
     {
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, c: 0 },
-        c: { a: 1, c: 0 },
-      },
+      a: { a: 0, c: 0 },
+      c: { a: 1, c: 0 },
     },
   );
 });
@@ -316,12 +241,9 @@ test("toD3", (t) => {
   t.plan(1);
   t.deepEqual(
     toD3({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 1, b: 1, c: 1 },
-        b: { a: 0, b: 0, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     {
       nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
@@ -339,68 +261,50 @@ test("topologicalSort", (t) => {
 
   t.deepEqual(
     topologicalSort({
-      size: 1,
-      adjacencyMatrix: {
-        a: { a: 0 },
-      },
+      a: { a: 0 },
     }),
     ["a"],
   );
 
   t.deepEqual(
     topologicalSort({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0, c: 0 },
-        b: { a: 0, b: 0, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 0, c: 0 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     ["a", "b", "c"],
   );
 
   t.deepEqual(
     topologicalSort({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1, c: 0 },
-        b: { a: 0, b: 0, c: 0 },
-        c: { a: 1, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 1, c: 0 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 1, b: 0, c: 0 },
     }),
     ["c", "a", "b"],
   );
 
   t.deepEqual(
     topologicalSort({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0, c: 0 },
-        b: { a: 1, b: 0, c: 0 },
-        c: { a: 1, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 0, c: 0 },
+      b: { a: 1, b: 0, c: 0 },
+      c: { a: 1, b: 0, c: 0 },
     }),
     ["b", "c", "a"],
   );
 
   t.deepEqual(
     topologicalSort({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0 },
-        b: { a: 10, b: 0 },
-      },
+      a: { a: 0, b: 0 },
+      b: { a: 10, b: 0 },
     }),
     ["b", "a"],
   );
 
   t.throws(() => {
     topologicalSort({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1 },
-        b: { a: 1, b: 0 },
-      },
+      a: { a: 0, b: 1 },
+      b: { a: 1, b: 0 },
     });
   });
 });
@@ -410,71 +314,47 @@ test("transpose", (t) => {
 
   t.deepEqual(
     transpose({
-      size: 1,
-      adjacencyMatrix: {
-        a: { a: 0 },
-      },
+      a: { a: 0 },
     }),
     {
-      size: 1,
-      adjacencyMatrix: {
-        a: { a: 0 },
-      },
+      a: { a: 0 },
     },
   );
 
   t.deepEqual(
     transpose({
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1 },
-        b: { a: 0, b: 0 },
-      },
+      a: { a: 0, b: 1 },
+      b: { a: 0, b: 0 },
     }),
     {
-      size: 2,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0 },
-        b: { a: 1, b: 0 },
-      },
+      a: { a: 0, b: 0 },
+      b: { a: 1, b: 0 },
     },
   );
 
   t.deepEqual(
     transpose({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 1, c: 1 },
-        b: { a: 0, b: 0, c: 1 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 1, c: 1 },
+      b: { a: 0, b: 0, c: 1 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     {
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0, c: 0 },
-        b: { a: 1, b: 0, c: 0 },
-        c: { a: 1, b: 1, c: 0 },
-      },
+      a: { a: 0, b: 0, c: 0 },
+      b: { a: 1, b: 0, c: 0 },
+      c: { a: 1, b: 1, c: 0 },
     },
   );
 
   t.deepEqual(
     transpose({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 1, b: 1, c: 1 },
-        b: { a: 1, b: 1, c: 1 },
-        c: { a: 1, b: 1, c: 1 },
-      },
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 1, b: 1, c: 1 },
+      c: { a: 1, b: 1, c: 1 },
     }),
     {
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 1, b: 1, c: 1 },
-        b: { a: 1, b: 1, c: 1 },
-        c: { a: 1, b: 1, c: 1 },
-      },
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 1, b: 1, c: 1 },
+      c: { a: 1, b: 1, c: 1 },
     },
   );
 });
@@ -484,12 +364,9 @@ test("vertices", (t) => {
 
   t.deepEqual(
     vertices({
-      size: 3,
-      adjacencyMatrix: {
-        a: { a: 0, b: 0, c: 0 },
-        b: { a: 0, b: 0, c: 0 },
-        c: { a: 0, b: 0, c: 0 },
-      },
+      a: { a: 0, b: 0, c: 0 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
     }),
     ["a", "b", "c"],
   );

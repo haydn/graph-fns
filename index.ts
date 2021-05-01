@@ -1,7 +1,4 @@
-type Graph = {
-  size: number;
-  adjacencyMatrix: { [u: string]: { [v: string]: number } };
-};
+type Graph = { [u: string]: { [v: string]: number } };
 
 type D3Graph = {
   nodes: Array<{
@@ -14,71 +11,60 @@ type D3Graph = {
 };
 
 const addEdge = (graph: Graph, edge: [string, string]): Graph => {
-  const size = graph.size;
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
-  for (let u in graph.adjacencyMatrix) {
-    adjacencyMatrix[u] = {};
-    for (let v in graph.adjacencyMatrix[u]) {
-      adjacencyMatrix[u][v] = graph.adjacencyMatrix[u][v];
+  for (let u in graph) {
+    result[u] = {};
+    for (let v in graph[u]) {
+      result[u][v] = graph[u][v];
     }
   }
 
-  adjacencyMatrix[edge[0]][edge[1]] += 1;
+  result[edge[0]][edge[1]] += 1;
 
-  return {
-    size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
 const addVertex = (graph: Graph, vertex: string): Graph => {
-  if (graph.adjacencyMatrix[vertex]) return graph;
+  if (graph[vertex]) return graph;
 
-  const size = graph.size + 1;
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
-  for (let u in graph.adjacencyMatrix) {
-    adjacencyMatrix[u] = {};
-    for (let v in graph.adjacencyMatrix[u]) {
-      adjacencyMatrix[u][v] = graph.adjacencyMatrix[u][v];
+  for (let u in graph) {
+    result[u] = {};
+    for (let v in graph[u]) {
+      result[u][v] = graph[u][v];
     }
   }
 
-  for (let v in adjacencyMatrix) adjacencyMatrix[v][vertex] = 0;
-  adjacencyMatrix[vertex] = {};
-  for (let v in adjacencyMatrix) adjacencyMatrix[vertex][v] = 0;
+  for (let v in result) result[v][vertex] = 0;
+  result[vertex] = {};
+  for (let v in result) result[vertex][v] = 0;
 
-  return {
-    size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
 const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(10)): Graph => {
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
   for (let i = 0; i < size; i++) {
     const u = id(i);
-    adjacencyMatrix[u] = {};
+    result[u] = {};
     for (let j = 0; j < size; j++) {
       const v = id(j);
-      adjacencyMatrix[u][v] = 0;
+      result[u][v] = 0;
     }
   }
 
-  return {
-    size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
 const edges = (graph: Graph): Array<[string, string]> => {
   const result = [];
 
-  for (let u in graph.adjacencyMatrix) {
-    for (let v in graph.adjacencyMatrix[u]) {
-      for (let i = 0; i < graph.adjacencyMatrix[u][v]; i++) {
+  for (let u in graph) {
+    for (let v in graph[u]) {
+      for (let i = 0; i < graph[u][v]; i++) {
         result.push([u, v]);
       }
     }
@@ -88,45 +74,45 @@ const edges = (graph: Graph): Array<[string, string]> => {
 };
 
 const fromD3 = (d3Graph: D3Graph): Graph => {
-  const size = d3Graph.nodes.length;
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
   for (let u of d3Graph.nodes) {
-    adjacencyMatrix[u.id] = {};
+    result[u.id] = {};
     for (let v of d3Graph.nodes) {
-      adjacencyMatrix[u.id][v.id] = 0;
+      result[u.id][v.id] = 0;
     }
   }
 
   for (let link of d3Graph.links) {
-    adjacencyMatrix[link.source][link.target] += 1;
+    result[link.source][link.target] += 1;
   }
 
-  return {
-    size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
 const indegrees = (graph: Graph): { [id: string]: number } => {
   const result: { [id: string]: number } = {};
-  for (let i in graph.adjacencyMatrix) result[i] = 0;
-  for (let u in graph.adjacencyMatrix) {
-    for (let v in graph.adjacencyMatrix[u]) {
-      result[v] += graph.adjacencyMatrix[u][v];
+
+  for (let i in graph) result[i] = 0;
+  for (let u in graph) {
+    for (let v in graph[u]) {
+      result[v] += graph[u][v];
     }
   }
+
   return result;
 };
 
 const isCyclic = (graph: Graph): boolean => {
   const visited: Set<string> = new Set();
   const path: Set<string> = new Set();
-  for (let i in graph.adjacencyMatrix) {
+
+  for (let i in graph) {
     if (visited.has(i)) continue;
     const cycleFound = _isCyclic(graph, visited, path, i);
     if (cycleFound) return true;
   }
+
   return false;
 };
 
@@ -139,8 +125,8 @@ const _isCyclic = (
   visited.add(vertex);
   path.add(vertex);
 
-  for (let i in graph.adjacencyMatrix[vertex]) {
-    if (graph.adjacencyMatrix[vertex][i] > 0) {
+  for (let i in graph[vertex]) {
+    if (graph[vertex][i] > 0) {
       if (visited.has(i)) {
         if (path.has(i)) return true;
         continue;
@@ -157,63 +143,55 @@ const _isCyclic = (
 
 const outdegrees = (graph: Graph): { [id: string]: number } => {
   const result: { [id: string]: number } = {};
-  for (let i in graph.adjacencyMatrix) result[i] = 0;
-  for (let u in graph.adjacencyMatrix) {
-    for (let v in graph.adjacencyMatrix[u]) {
-      result[v] += graph.adjacencyMatrix[v][u];
+  for (let i in graph) result[i] = 0;
+  for (let u in graph) {
+    for (let v in graph[u]) {
+      result[v] += graph[v][u];
     }
   }
   return result;
 };
 
 const removeEdge = (graph: Graph, edge: [string, string]): Graph => {
-  const size = graph.size;
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
-  for (let u in graph.adjacencyMatrix) {
-    adjacencyMatrix[u] = {};
-    for (let v in graph.adjacencyMatrix[u]) {
-      adjacencyMatrix[u][v] = graph.adjacencyMatrix[u][v];
+  for (let u in graph) {
+    result[u] = {};
+    for (let v in graph[u]) {
+      result[u][v] = graph[u][v];
     }
   }
 
-  if (adjacencyMatrix[edge[0]][edge[1]] > 0) {
-    adjacencyMatrix[edge[0]][edge[1]] -= 1;
+  if (result[edge[0]][edge[1]] > 0) {
+    result[edge[0]][edge[1]] -= 1;
   }
 
-  return {
-    size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
 const removeVertex = (graph: Graph, vertex: string): Graph => {
-  const size = graph.size - 1;
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
-  for (let u in graph.adjacencyMatrix) {
+  for (let u in graph) {
     if (u === vertex) continue;
-    adjacencyMatrix[u] = {};
-    for (let v in graph.adjacencyMatrix[u]) {
+    result[u] = {};
+    for (let v in graph[u]) {
       if (v === vertex) continue;
-      adjacencyMatrix[u][v] = graph.adjacencyMatrix[u][v];
+      result[u][v] = graph[u][v];
     }
   }
 
-  return {
-    size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
 const toD3 = (graph: Graph): D3Graph => {
   const nodes = [];
   const links = [];
 
-  for (let u in graph.adjacencyMatrix) {
+  for (let u in graph) {
     nodes[nodes.length] = { id: u };
-    for (let v in graph.adjacencyMatrix[u]) {
-      for (let i = 0; i < graph.adjacencyMatrix[u][v]; i++) {
+    for (let v in graph[u]) {
+      for (let i = 0; i < graph[u][v]; i++) {
         links[links.length] = { source: u, target: v };
       }
     }
@@ -230,7 +208,7 @@ const topologicalSort = (graph: Graph): Array<string> => {
   const queue: Array<string> = [];
   const indegree = indegrees(graph);
 
-  for (let i in graph.adjacencyMatrix) {
+  for (let i in graph) {
     if (indegree[i] === 0) {
       queue.push(i);
       visited.add(i);
@@ -240,9 +218,9 @@ const topologicalSort = (graph: Graph): Array<string> => {
   while (queue.length > 0) {
     const v = queue.shift();
     result.push(v);
-    for (let i in graph.adjacencyMatrix) {
-      if (graph.adjacencyMatrix[v][i] > 0 && !visited.has(i)) {
-        indegree[i] -= graph.adjacencyMatrix[v][i];
+    for (let i in graph) {
+      if (graph[v][i] > 0 && !visited.has(i)) {
+        indegree[i] -= graph[v][i];
         if (indegree[i] <= 0) {
           queue.push(i);
           visited.add(i);
@@ -255,22 +233,19 @@ const topologicalSort = (graph: Graph): Array<string> => {
 };
 
 const transpose = (graph: Graph): Graph => {
-  const adjacencyMatrix: Graph["adjacencyMatrix"] = {};
+  const result: Graph = {};
 
-  for (let u in graph.adjacencyMatrix) {
-    adjacencyMatrix[u] = {};
-    for (let v in graph.adjacencyMatrix[u]) {
-      adjacencyMatrix[u][v] = graph.adjacencyMatrix[v][u];
+  for (let u in graph) {
+    result[u] = {};
+    for (let v in graph[u]) {
+      result[u][v] = graph[v][u];
     }
   }
 
-  return {
-    size: graph.size,
-    adjacencyMatrix,
-  };
+  return result;
 };
 
-const vertices = (graph: Graph): Array<string> => Object.keys(graph.adjacencyMatrix);
+const vertices = (graph: Graph): Array<string> => Object.keys(graph);
 
 export {
   D3Graph,
