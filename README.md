@@ -182,6 +182,14 @@ declare const isCyclic: (graph: Graph) => boolean;
 
 Returns `true` if the graph provided contains any [cycles](<https://en.wikipedia.org/wiki/Cycle_(graph_theory)>) (including "loops" — when an edge that starts and ends at the same vertex), otherwise returns `false`.
 
+### order
+
+```ts
+declare const order: (graph: Graph) => number;
+```
+
+Returns the number of vertices in the graph.
+
 ### outdegrees
 
 ```ts

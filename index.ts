@@ -140,6 +140,12 @@ const _isCyclic = (
   return false;
 };
 
+const order = (graph: Graph): number => {
+  let result = 0;
+  for (let u in graph) result += 1;
+  return result;
+};
+
 const outdegrees = (graph: Graph): { [id: string]: number } => {
   const result: { [id: string]: number } = {};
   for (let i in graph) result[i] = 0;
@@ -248,6 +254,7 @@ export {
   fromD3,
   indegrees,
   isCyclic,
+  order,
   outdegrees,
   removeEdge,
   removeVertex,
