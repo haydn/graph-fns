@@ -30,6 +30,18 @@ const addVertex = (graph: Graph, vertex: string): Graph => {
   return result;
 };
 
+const children = (graph: Graph, vertex: string): Set<string> => {
+  const result: Set<string> = new Set();
+
+  for (let v in graph[vertex]) {
+    if (graph[vertex][v] > 0) {
+      result.add(v);
+    }
+  }
+
+  return result;
+};
+
 const clone = (graph: Graph): Graph => {
   const result: Graph = {};
 
@@ -53,6 +65,18 @@ const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(
       const v = id(j);
       result[u][v] = 0;
     }
+  }
+
+  return result;
+};
+
+const descendants = (graph: Graph, vertex: string): Set<string> => {
+  if (isCyclic(graph)) throw "Cannot retrieve descendants in a graph that contains cycles.";
+
+  let result: Set<string> = new Set();
+
+  for (let child of children(graph, vertex)) {
+    result = new Set([...result, child, ...descendants(graph, child)]);
   }
 
   return result;
@@ -262,8 +286,10 @@ export {
   Graph,
   addEdge,
   addVertex,
+  children,
   clone,
   create,
+  descendants,
   edges,
   fromD3,
   indegrees,

@@ -128,6 +128,14 @@ declare const addVertex: (graph: Graph, vertex: string) => Graph;
 
 Adds a new vertex to the graph. The new vertex will not have any edges connecting it to existing vertices in the graph.
 
+### children
+
+```ts
+declare const children: (graph: Graph, vertex: string) => Set<string>;
+```
+
+Returns all the vertices that are children of the given vertex — there is an edge starting at the given vertex going to the child vertex. If there is an edge that both starts and ends at the given vertex, it will be considered a child of itself and included in the result.
+
 ### clone
 
 ```ts
@@ -147,6 +155,16 @@ Creates a new graph. The new graph can be seeded with an optional number of vert
 The `size` argument defines how many vertices with which to seed the graph. Additional vertices can be added using [addVertex](#addVertex), but it is more effecient to create them upfront when possible.
 
 The `id` function can be provided to specify how to generate ID's for each of the seed vertices. The `i` argument passed is the "index" of the vertex being created — a unique positive integer starting at 0, incrementing by 1 for each vertex. The default function will simply convert `i` to a string (`(i) => i.toString(10)`) resulting in ID's like: `"0"`, `"1"`, `"2"` etc.
+
+### descendants
+
+```ts
+declare const descendants: (graph: Graph, vertex: string) => Set<string>;
+```
+
+Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), recursively finds all the vertices under the given vertex.
+
+Note: If the given graph contains cycles (checked with `isCyclic`), an error will be thrown.
 
 ### edges
 

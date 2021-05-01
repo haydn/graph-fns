@@ -1,8 +1,10 @@
 import {
   addEdge,
   addVertex,
+  children,
   clone,
   create,
+  descendants,
   edges,
   fromD3,
   indegrees,
@@ -59,6 +61,32 @@ test("addVertex", (t) => {
   );
 });
 
+test("children", (t) => {
+  t.plan(2);
+
+  t.deepEqual(
+    children(
+      {
+        a: { a: 0, b: 1, c: 1 },
+        b: { a: 0, b: 0, c: 0 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+      "a",
+    ),
+    new Set(["b", "c"]),
+  );
+
+  t.deepEqual(
+    children(
+      {
+        a: { a: 1 },
+      },
+      "a",
+    ),
+    new Set(["a"]),
+  );
+});
+
 test("clone", (t) => {
   t.plan(4);
 
@@ -83,6 +111,45 @@ test("create", (t) => {
       "1!": { "0!": 0, "1!": 0 },
     },
   );
+});
+
+test("descendants", (t) => {
+  t.plan(3);
+
+  t.deepEqual(
+    descendants(
+      {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 0, b: 0, c: 1 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+      "a",
+    ),
+    new Set(["b", "c"]),
+  );
+
+  t.deepEqual(
+    descendants(
+      {
+        a: { a: 0, b: 1, c: 0, d: 0 },
+        b: { a: 0, b: 0, c: 1, d: 1 },
+        c: { a: 0, b: 0, c: 0, d: 1 },
+        d: { a: 0, b: 0, c: 0, d: 0 },
+      },
+      "a",
+    ),
+    new Set(["b", "c", "d"]),
+  );
+
+  t.throws(() => {
+    descendants(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 1, b: 0 },
+      },
+      "a",
+    );
+  });
 });
 
 test("edges", (t) => {
