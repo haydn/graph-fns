@@ -63,7 +63,7 @@ const edges = (graph: Graph): Array<[string, string]> => {
 
   for (let u in graph) {
     for (let v in graph[u]) {
-      for (let i = 0; i < graph[u][v]; i++) {
+      if (graph[u][v] > 0) {
         result.push([u, v]);
       }
     }
@@ -154,9 +154,7 @@ const outdegrees = (graph: Graph): { [id: string]: number } => {
 const removeEdge = (graph: Graph, edge: [string, string]): Graph => {
   const result = clone(graph);
 
-  if (result[edge[0]][edge[1]] > 0) {
-    result[edge[0]][edge[1]] -= 1;
-  }
+  result[edge[0]][edge[1]] = 0;
 
   return result;
 };
@@ -183,8 +181,8 @@ const toD3 = (graph: Graph): D3Graph => {
   for (let u in graph) {
     nodes[nodes.length] = { id: u };
     for (let v in graph[u]) {
-      for (let i = 0; i < graph[u][v]; i++) {
-        links[links.length] = { source: u, target: v };
+      if (graph[u][v] > 0) {
+        links.push({ source: u, target: v });
       }
     }
   }

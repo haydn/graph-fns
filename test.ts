@@ -84,7 +84,7 @@ test("create", (t) => {
 });
 
 test("edges", (t) => {
-  t.plan(1);
+  t.plan(2);
 
   t.deepEqual(
     edges({
@@ -95,6 +95,19 @@ test("edges", (t) => {
     [
       ["a", "b"],
       ["b", "c"],
+    ],
+  );
+
+  t.deepEqual(
+    edges({
+      a: { a: 0, b: 2, c: 0 },
+      b: { a: 0, b: 0, c: 1 },
+      c: { a: 0.5, b: 0, c: 0 },
+    }),
+    [
+      ["a", "b"],
+      ["b", "c"],
+      ["c", "a"],
     ],
   );
 });
@@ -214,7 +227,7 @@ test("outdegrees", (t) => {
 });
 
 test("removeEdge", (t) => {
-  t.plan(1);
+  t.plan(2);
 
   t.deepEqual(
     removeEdge(
@@ -229,6 +242,20 @@ test("removeEdge", (t) => {
       a: { a: 0, b: 0, c: 0 },
       b: { a: 0, b: 0, c: 1 },
       c: { a: 1, b: 0, c: 0 },
+    },
+  );
+
+  t.deepEqual(
+    removeEdge(
+      {
+        a: { a: 0, b: 2 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+    ),
+    {
+      a: { a: 0, b: 0 },
+      b: { a: 0, b: 0 },
     },
   );
 });
@@ -256,7 +283,7 @@ test("toD3", (t) => {
   t.plan(1);
   t.deepEqual(
     toD3({
-      a: { a: 1, b: 1, c: 1 },
+      a: { a: 1, b: 2, c: 1 },
       b: { a: 0, b: 0, c: 0 },
       c: { a: 0, b: 0, c: 0 },
     }),
