@@ -1,5 +1,3 @@
-type Graph = { [u: string]: { [v: string]: number } };
-
 type D3Graph = {
   nodes: Array<{
     id: string;
@@ -10,10 +8,20 @@ type D3Graph = {
   }>;
 };
 
-const addEdge = (graph: Graph, edge: [string, string]): Graph => {
+type Edge = [string, string];
+
+type Graph = {
+  [u: string]: {
+    [v: string]: number;
+  };
+};
+
+const addEdge = (graph: Graph, [u, v]: Edge): Graph => {
   const result = clone(graph);
 
-  result[edge[0]][edge[1]] += 1;
+  if (result[u][v] === 0) {
+    result[u][v] = 1;
+  }
 
   return result;
 };
@@ -46,7 +54,7 @@ const children = (graph: Graph, vertex: string): Set<string> => {
   const result: Set<string> = new Set();
 
   for (let v in graph[vertex]) {
-    if (graph[vertex][v] > 0) {
+    if (graph[vertex][v] !== 0) {
       result.add(v);
     }
   }
@@ -82,6 +90,10 @@ const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(
   return result;
 };
 
+const degree = (graph: Graph, vertex: string, weighted = false): number => {
+  return indegree(graph, vertex, weighted) + outdegree(graph, vertex, weighted);
+};
+
 const descendants = (graph: Graph, vertex: string): Set<string> => {
   if (isCyclic(graph)) throw "Cannot retrieve descendants in a graph that contains cycles.";
 
@@ -94,12 +106,12 @@ const descendants = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const edges = (graph: Graph): Set<[string, string]> => {
-  const result: Set<[string, string]> = new Set([]);
+const edges = (graph: Graph): Set<Edge> => {
+  const result: Set<Edge> = new Set([]);
 
   for (let u in graph) {
     for (let v in graph[u]) {
-      if (graph[u][v] > 0) {
+      if (graph[u][v] !== 0) {
         result.add([u, v]);
       }
     }
@@ -118,20 +130,21 @@ const fromD3 = (d3Graph: D3Graph): Graph => {
     }
   }
 
-  for (let link of d3Graph.links) {
-    result[link.source][link.target] += 1;
+  for (let { source: u, target: v } of d3Graph.links) {
+    result[u][v] = result[u][v] === 0 ? 1 : result[u][v] + 1;
   }
 
   return result;
 };
 
-const indegrees = (graph: Graph): { [id: string]: number } => {
-  const result: { [id: string]: number } = {};
+const getEdge = (graph: Graph, [u, v]: Edge): number => graph[u][v];
 
-  for (let i in graph) result[i] = 0;
+const indegree = (graph: Graph, vertex: string, weighted = false): number => {
+  let result = 0;
+
   for (let u in graph) {
-    for (let v in graph[u]) {
-      result[v] += graph[u][v];
+    if (graph[u][vertex] !== 0) {
+      result += weighted ? graph[u][vertex] : 1;
     }
   }
 
@@ -161,7 +174,7 @@ const _isCyclic = (
   path.add(vertex);
 
   for (let i in graph[vertex]) {
-    if (graph[vertex][i] > 0) {
+    if (graph[vertex][i] !== 0) {
       if (visited.has(i)) {
         if (path.has(i)) return true;
         continue;
@@ -182,14 +195,15 @@ const order = (graph: Graph): number => {
   return result;
 };
 
-const outdegrees = (graph: Graph): { [id: string]: number } => {
-  const result: { [id: string]: number } = {};
-  for (let i in graph) result[i] = 0;
-  for (let u in graph) {
-    for (let v in graph[u]) {
-      result[v] += graph[v][u];
+const outdegree = (graph: Graph, vertex: string, weighted = false): number => {
+  let result = 0;
+
+  for (let v in graph[vertex]) {
+    if (graph[vertex][v] !== 0) {
+      result += weighted ? graph[vertex][v] : 1;
     }
   }
+
   return result;
 };
 
@@ -197,7 +211,7 @@ const parents = (graph: Graph, vertex: string): Set<string> => {
   const result: Set<string> = new Set();
 
   for (let u in graph) {
-    if (graph[u][vertex] > 0) {
+    if (graph[u][vertex] !== 0) {
       result.add(u);
     }
   }
@@ -205,10 +219,10 @@ const parents = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const removeEdge = (graph: Graph, edge: [string, string]): Graph => {
+const removeEdge = (graph: Graph, [u, v]: Edge): Graph => {
   const result = clone(graph);
 
-  result[edge[0]][edge[1]] = 0;
+  result[u][v] = 0;
 
   return result;
 };
@@ -228,12 +242,20 @@ const removeVertex = (graph: Graph, vertex: string): Graph => {
   return result;
 };
 
+const setEdge = (graph: Graph, [u, v]: Edge, weight: number): Graph => {
+  const result = clone(graph);
+
+  result[u][v] = weight;
+
+  return result;
+};
+
 const size = (graph: Graph): number => {
   let result = 0;
 
   for (let u in graph) {
     for (let v in graph[u]) {
-      if (graph[u][v] > 0) {
+      if (graph[u][v] !== 0) {
         result += 1;
       }
     }
@@ -249,8 +271,12 @@ const toD3 = (graph: Graph): D3Graph => {
   for (let u in graph) {
     nodes[nodes.length] = { id: u };
     for (let v in graph[u]) {
-      if (graph[u][v] > 0) {
-        links.push({ source: u, target: v });
+      if (graph[u][v] !== 0) {
+        let i = graph[u][v];
+        do {
+          links.push({ source: u, target: v });
+          i -= 1;
+        } while (i > 0);
       }
     }
   }
@@ -264,22 +290,26 @@ const topologicalSort = (graph: Graph): Array<string> => {
   const result: Array<string> = [];
   const visited: Set<string> = new Set();
   const queue: Array<string> = [];
-  const indegree = indegrees(graph);
+  const indegrees: { [id: string]: number } = {};
+
+  for (let v of vertices(graph)) {
+    indegrees[v] = indegree(graph, v);
+  }
 
   for (let i in graph) {
-    if (indegree[i] === 0) {
+    if (indegrees[i] === 0) {
       queue.push(i);
       visited.add(i);
     }
   }
 
-  while (queue.length > 0) {
+  while (queue.length !== 0) {
     const v = queue.shift();
     result.push(v);
     for (let i in graph) {
-      if (graph[v][i] > 0 && !visited.has(i)) {
-        indegree[i] -= graph[v][i];
-        if (indegree[i] <= 0) {
+      if (graph[v][i] !== 0 && !visited.has(i)) {
+        indegrees[i] -= graph[v][i];
+        if (indegrees[i] <= 0) {
           queue.push(i);
           visited.add(i);
         }
@@ -314,16 +344,19 @@ export {
   children,
   clone,
   create,
+  degree,
   descendants,
   edges,
   fromD3,
-  indegrees,
+  getEdge,
+  indegree,
   isCyclic,
   order,
-  outdegrees,
+  outdegree,
   parents,
   removeEdge,
   removeVertex,
+  setEdge,
   size,
   toD3,
   topologicalSort,

@@ -5,16 +5,19 @@ import {
   children,
   clone,
   create,
+  degree,
   descendants,
   edges,
   fromD3,
-  indegrees,
+  getEdge,
+  indegree,
   isCyclic,
   order,
-  outdegrees,
+  outdegree,
   parents,
   removeEdge,
   removeVertex,
+  setEdge,
   size,
   toD3,
   topologicalSort,
@@ -25,7 +28,7 @@ import {
 import test from "tape";
 
 test("addEdge", (t) => {
-  t.plan(1);
+  t.plan(2);
 
   t.deepEqual(
     addEdge(
@@ -37,6 +40,20 @@ test("addEdge", (t) => {
     ),
     {
       a: { a: 0, b: 1 },
+      b: { a: 0, b: 0 },
+    },
+  );
+
+  t.deepEqual(
+    addEdge(
+      {
+        a: { a: 0, b: 1.5 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+    ),
+    {
+      a: { a: 0, b: 1.5 },
       b: { a: 0, b: 0 },
     },
   );
@@ -154,6 +171,35 @@ test("create", (t) => {
   );
 });
 
+test("degree", (t) => {
+  t.plan(2);
+
+  t.equal(
+    degree(
+      {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 2, b: 0, c: 0 },
+        c: { a: 0.5, b: 0, c: 0 },
+      },
+      "a",
+    ),
+    3,
+  );
+
+  t.equal(
+    degree(
+      {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 2, b: 0, c: 0 },
+        c: { a: 0.5, b: 0, c: 0 },
+      },
+      "a",
+      true,
+    ),
+    3.5,
+  );
+});
+
 test("descendants", (t) => {
   t.plan(3);
 
@@ -242,16 +288,47 @@ test("fromD3", (t) => {
   );
 });
 
-test("indegrees", (t) => {
+test("getEdge", (t) => {
   t.plan(1);
 
-  t.deepEqual(
-    indegrees({
-      a: { a: 1, b: 1, c: 1 },
-      b: { a: 0, b: 1, c: 0 },
-      c: { a: 0, b: 0, c: 0 },
-    }),
-    { a: 1, b: 2, c: 1 },
+  t.equal(
+    getEdge(
+      {
+        a: { a: 0, b: 1.5 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+    ),
+    1.5,
+  );
+});
+
+test("indegree", (t) => {
+  t.plan(2);
+
+  t.equal(
+    indegree(
+      {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 2, b: 0, c: 0 },
+        c: { a: 0.5, b: 0, c: 0 },
+      },
+      "a",
+    ),
+    2,
+  );
+
+  t.equal(
+    indegree(
+      {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 2, b: 0, c: 0 },
+        c: { a: 0.5, b: 0, c: 0 },
+      },
+      "a",
+      true,
+    ),
+    2.5,
   );
 });
 
@@ -344,16 +421,32 @@ test("order", (t) => {
   );
 });
 
-test("outdegrees", (t) => {
-  t.plan(1);
+test("outdegree", (t) => {
+  t.plan(2);
 
-  t.deepEqual(
-    outdegrees({
-      a: { a: 1, b: 1, c: 1 },
-      b: { a: 0, b: 1, c: 0 },
-      c: { a: 0, b: 0, c: 0 },
-    }),
-    { a: 3, b: 1, c: 0 },
+  t.equal(
+    outdegree(
+      {
+        a: { a: 0, b: 2, c: 0.5 },
+        b: { a: 1, b: 0, c: 0 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+      "a",
+    ),
+    2,
+  );
+
+  t.equal(
+    outdegree(
+      {
+        a: { a: 0, b: 2, c: 0.5 },
+        b: { a: 1, b: 0, c: 0 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+      "a",
+      true,
+    ),
+    2.5,
   );
 });
 
@@ -364,7 +457,7 @@ test("parents", (t) => {
     parents(
       {
         a: { a: 0, b: 0, c: 1 },
-        b: { a: 0, b: 0, c: 1 },
+        b: { a: 0, b: 0, c: 0.5 },
         c: { a: 0, b: 0, c: 0 },
       },
       "c",
@@ -389,16 +482,16 @@ test("removeEdge", (t) => {
   t.deepEqual(
     removeEdge(
       {
-        a: { a: 0, b: 1, c: 0 },
-        b: { a: 0, b: 0, c: 1 },
-        c: { a: 1, b: 0, c: 0 },
+        a: { a: 0, b: 1.5, c: 0 },
+        b: { a: 0, b: 0, c: 0.5 },
+        c: { a: 2, b: 0, c: 0 },
       },
       ["a", "b"],
     ),
     {
       a: { a: 0, b: 0, c: 0 },
-      b: { a: 0, b: 0, c: 1 },
-      c: { a: 1, b: 0, c: 0 },
+      b: { a: 0, b: 0, c: 0.5 },
+      c: { a: 2, b: 0, c: 0 },
     },
   );
 
@@ -436,6 +529,55 @@ test("removeVertex", (t) => {
   );
 });
 
+test("setEdge", (t) => {
+  t.plan(3);
+
+  t.deepEqual(
+    setEdge(
+      {
+        a: { a: 0, b: 0 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+      1,
+    ),
+    {
+      a: { a: 0, b: 1 },
+      b: { a: 0, b: 0 },
+    },
+  );
+
+  t.deepEqual(
+    setEdge(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+      0,
+    ),
+    {
+      a: { a: 0, b: 0 },
+      b: { a: 0, b: 0 },
+    },
+  );
+
+  t.deepEqual(
+    setEdge(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+      1.5,
+    ),
+    {
+      a: { a: 0, b: 1.5 },
+      b: { a: 0, b: 0 },
+    },
+  );
+});
+
 test("size", (t) => {
   t.plan(3);
 
@@ -461,9 +603,10 @@ test("size", (t) => {
 
 test("toD3", (t) => {
   t.plan(1);
+
   t.deepEqual(
     toD3({
-      a: { a: 1, b: 2, c: 1 },
+      a: { a: 1, b: 2, c: 0.5 },
       b: { a: 0, b: 0, c: 0 },
       c: { a: 0, b: 0, c: 0 },
     }),
@@ -471,6 +614,7 @@ test("toD3", (t) => {
       nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
       links: [
         { source: "a", target: "a" },
+        { source: "a", target: "b" },
         { source: "a", target: "b" },
         { source: "a", target: "c" },
       ],
@@ -532,7 +676,7 @@ test("topologicalSort", (t) => {
 });
 
 test("transpose", (t) => {
-  t.plan(4);
+  t.plan(5);
 
   t.deepEqual(
     transpose({
@@ -551,6 +695,17 @@ test("transpose", (t) => {
     {
       a: { a: 0, b: 0 },
       b: { a: 1, b: 0 },
+    },
+  );
+
+  t.deepEqual(
+    transpose({
+      a: { a: 0, b: -0.5 },
+      b: { a: 0, b: 0 },
+    }),
+    {
+      a: { a: 0, b: 0 },
+      b: { a: -0.5, b: 0 },
     },
   );
 

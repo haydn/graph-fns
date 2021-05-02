@@ -2,7 +2,7 @@
   <h1>
     <img src="logo.png" alt="graph-fns" width="160" />
   </h1>
-  <p>A utility library for working with graphs.</p>
+  <p>A utility library for working with graphs in JavaScript.</p>
   <p>
     <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/min/graph-fns.svg">
     <img alt="npm" src="https://img.shields.io/npm/dw/graph-fns.svg">
@@ -11,6 +11,8 @@
 
 ## Features
 
+- Pure functions and immutable data patterns.
+- Compatible with Node.js and browser runtimes.
 - Flow and TypeScript declarations included.
 - CommonJS, UMD and ESM modules provided.
 - Zero dependencies.
@@ -30,7 +32,7 @@ Yarn:
 yarn add graph-fns
 ```
 
-NPM:
+npm:
 
 ```shell
 npm install graph-fns
@@ -41,58 +43,53 @@ npm install graph-fns
 ```js
 import { create, addEdge, isCyclic, topologicalSort } from "graph-fns";
 
-let graphA = create(3, (i) => String.fromCharCode(65 + i));
-//=> [Graph] { A, B, C }
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { A, B, C }
 
-graphA = addEdge(graphA, ["A", "C"]);
-//=> [Graph] { A -> C, B }
+graph = addEdge(graph, ["A", "C"]);
+//=> Graph { A -> C, B }
 
-graphA = addEdge(graphA, ["B", "A"]);
-//=> [Graph] { B -> A -> C }
+graph = addEdge(graph, ["B", "A"]);
+//=> Graph { B -> A, A -> C }
 
-isCyclic(graphA);
+isCyclic(graph);
 //=> false
 
-topologicalSort(graphA);
+topologicalSort(graph);
 //=> ["B", "A", "C"]
 
-let graphB = create(3, (i) => String.fromCharCode(65 + i));
-//=> [Graph] { A, B, C }
+degree(graph, "A");
+//=> 2
 
-graphB = addEdge(graphB, ["A", "B"]);
-//=> [Graph] { A -> B, C }
+graph = addVertex(graph, "D");
+//=> Graph { B -> A, A -> C, D }
 
-graphB = addEdge(graphB, ["B", "C"]);
-//=> [Graph] { A -> B -> C }
+graph = addEdge(graph, ["C", "D"]);
+//=> Graph { B -> A, A -> C, C -> D }
 
-graphB = addEdge(graphB, ["C", "A"]);
-//=> [Graph] { A -> B -> C -> A }
+descendants(graph, "A");
+//=> Set { C, D }
 
-isCyclic(graphB);
+graph = addEdge(graph, ["D", "B"]);
+//=> Graph { B -> A, A -> C, C -> D, D -> B }
+
+isCyclic(graph);
 //=> true
 ```
 
 ## Terminology
 
-| Term | Synonym(s) | Description |
-| --- | --- | --- |
-| graph | network | A system of vertices connected in pairs by edges. ([Wikipedia](<https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)>)) |
-| vertex | node | The fundamental unit of which graphs are formed. ([Wikipedia](<https://en.wikipedia.org/wiki/Vertex_(graph_theory)>)) |
-| edge | link | A connection between two vertices in a graph. ([Wikipedia](<https://en.wikipedia.org/wiki/Edge_(graph_theory)>)) |
+| Term | Description |
+| --- | --- |
+| graph / network | A system of vertices connected in pairs by edges. ([Wikipedia](<https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)>)) |
+| vertex / node | The fundamental unit of which graphs are formed. ([Wikipedia](<https://en.wikipedia.org/wiki/Vertex_(graph_theory)>)) |
+| edge / link / branch / arc | A connection between two vertices in a graph. ([Wikipedia](<https://en.wikipedia.org/wiki/Edge_(graph_theory)>)) |
+| weighted graph | A graph with a numeric weight associated with each edge. ([Wolfram MathWorld](https://mathworld.wolfram.com/WeightedGraph.html)) |
+| directed graph | A graph where each edge has a direction. ([Wikipedia](https://en.wikipedia.org/wiki/Directed_graph)) |
+| path | A sequence of edges that connect a set of vertices where each vertex is distinct. ([Wikipedia](<https://en.wikipedia.org/wiki/Path_(graph_theory)>)) |
+| directed path | A path where all edges are orientated in the same direction. ([Wikipedia](<https://en.wikipedia.org/wiki/Path_(graph_theory)>)) |
 
 ## Types
-
-### Graph
-
-```ts
-declare type Graph = {
-  [u: string]: {
-    [v: string]: number;
-  };
-};
-```
-
-An [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix) that describes the edges between each vertex. A value of `0` indicates there is no edge between the two vertices and a value of `1` indicates there is an edge connecting them (directed from `u` to `v`).
 
 ### D3Graph
 
@@ -108,17 +105,43 @@ declare type D3Graph = {
 };
 ```
 
-This representation of a graph is convinient for using with [D3.js force-directed graphs](https://github.com/d3/d3-force).
+A representation a graph convenient for using with [D3.js force-directed graphs](https://github.com/d3/d3-force).
 
-## API
+### Edge
+
+```ts
+declare type Edge = [string, string];
+```
+
+### Graph
+
+```ts
+declare type Graph = {
+  [u: string]: {
+    [v: string]: number;
+  };
+};
+```
+
+This is the main data structure used by graph-fns to represent a _graph_. It is an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix) where each number in the matrix describes the edge from vertex `u` to vertex `v`. By default, a value of `1` is used to indicate there is a edge between the two vertices, but any value other than `0` can be used to signify the presence of an edge (typically used to describe a weighted graph).
+
+## Functions
 
 ### addEdge
 
 ```ts
-declare const addEdge: (graph: Graph, edge: [string, string]) => Graph;
+declare const addEdge: (graph: Graph, [u, v]: Edge) => Graph;
 ```
 
-Adds a new edge to the graph. The order of the vertices in the edge determine the direction of the edge — the edge will start at the first vertex and end at the second (`[start, end]`).
+Adds a new edge to the graph from vertex `u` to vertex `v`.
+
+**Note**: `addEdge(graph, edge)` is equivalent to `setEdge(graph, edge, 1)`.
+
+Also see:
+
+- [removeEdge](#removeEdge)
+- [getEdge](#getEdge)
+- [setEdge](#setEdge)
 
 ### addVertex
 
@@ -128,15 +151,25 @@ declare const addVertex: (graph: Graph, vertex: string) => Graph;
 
 Adds a new vertex to the graph. The new vertex will not have any edges connecting it to existing vertices in the graph.
 
+**Note**: If the vertex already exists the graph will be returned unmodified.
+
+Also see:
+
+- [removeVertex](#removeVertex)
+
 ### ancestors
 
 ```ts
 declare const ancestors: (graph: Graph, vertex: string) => Set<string>;
 ```
 
-Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), recursively finds all the vertices above the given vertex.
+Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns all ancestors of the given vertex (i.e. vertices from which there is a directed path to the given vertex).
 
-Note: If the given graph contains cycles (checked with `isCyclic`), an error will be thrown.
+**Note**: If the given graph contains cycles (checked with [isCyclic](#isCyclic)), an error will be thrown.
+
+Also see:
+
+- [descendants](#descendants)
 
 ### children
 
@@ -144,7 +177,13 @@ Note: If the given graph contains cycles (checked with `isCyclic`), an error wil
 declare const children: (graph: Graph, vertex: string) => Set<string>;
 ```
 
-Returns all the vertices that are children of the given vertex — there is an edge starting at the given vertex going to the child vertex. If there is an edge that both starts and ends at the given vertex, it will be considered a child of itself and included in the result.
+Returns all the vertices that are children of the given vertex (i.e. there is an edge starting at the given vertex going to the child vertex).
+
+**Note**: If there is an edge that both starts and ends at the given vertex, it will be considered a child of itself and included in the result.
+
+Also see:
+
+- [parents](#parents)
 
 ### clone
 
@@ -162,9 +201,37 @@ declare const create: (size?: number, id?: (i: number) => string) => Graph;
 
 Creates a new graph. The new graph can be seeded with an optional number of vertices, but it will not contain any edges.
 
-The `size` argument defines how many vertices with which to seed the graph. Additional vertices can be added using [addVertex](#addVertex), but it is more effecient to create them upfront when possible.
+The `size` argument defines how many vertices with which to seed the graph. Additional vertices can be added using [addVertex](#addVertex), but it is more efficient to create them upfront when possible.
 
-The `id` function can be provided to specify how to generate ID's for each of the seed vertices. The `i` argument passed is the "index" of the vertex being created — a unique positive integer starting at 0, incrementing by 1 for each vertex. The default function will simply convert `i` to a string (`(i) => i.toString(10)`) resulting in ID's like: `"0"`, `"1"`, `"2"` etc.
+The `id` function can be provided to specify the identity of each vertex. The `i` argument passed is a unique monotonically increasing integer for each vertex being created and by default it will simply be converted to a string (`(i) => i.toString(10)`) resulting in the sequence `"0"`, `"1"`, `"2"` etc.
+
+To create a graph using existing ID's you can use a pattern like this:
+
+```js
+const users = [
+  { id: "412", name: "Jane" },
+  { id: "34", name: "Kate" },
+  { id: "526", name: "Mike" },
+  { id: "155", name: "Tony" },
+];
+
+const graph = create(users.length, (i) => users[i].id);
+```
+
+### degree
+
+```ts
+declare const degree: (graph: Graph, vertex: string, weighted?: boolean) => number;
+```
+
+Returns the [degree](<https://en.wikipedia.org/wiki/Degree_(graph_theory)>) for the given vertex.
+
+By default `weighted` is `false`, if set to `true` the result will be the sum of the edge weights (which could be zero or a negative value).
+
+Also see:
+
+- [indegree](#indegree)
+- [outdegree](#outdegree)
 
 ### descendants
 
@@ -172,17 +239,21 @@ The `id` function can be provided to specify how to generate ID's for each of th
 declare const descendants: (graph: Graph, vertex: string) => Set<string>;
 ```
 
-Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), recursively finds all the vertices under the given vertex.
+Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns all descendants of the given vertex (i.e. vertices to which there is a directed path from the given vertex).
 
-Note: If the given graph contains cycles (checked with `isCyclic`), an error will be thrown.
+**Note**: If the given graph contains cycles (checked with [isCyclic](#isCyclic)), an error will be thrown.
+
+Also see:
+
+- [ancestors](#ancestors)
 
 ### edges
 
 ```ts
-declare const edges: (graph: Graph) => Set<[string, string]>;
+declare const edges: (graph: Graph) => Set<Edge>;
 ```
 
-Returns the edges in the graph.
+Returns all the edges in the graph (i.e. any edge with a value other than `0`).
 
 ### fromD3
 
@@ -190,17 +261,61 @@ Returns the edges in the graph.
 declare const fromD3: (graph: D3Graph) => Graph;
 ```
 
-Converts a graph from a [D3Graph](#d3graph) representation into a [Graph](#graph) representation.
+Converts a graph from a [D3Graph](#D3Graph) representation into a [Graph](#Graph) representation.
 
-**Note**: Any data associated with nodes or links in the D3Graph representation will be discarded.
+When the D3Graph contains multiple links between two nodes the resulting graph will have inflated edge weights to reflect that.
 
-### indegrees
+```js
+const graph = fromD3({
+  nodes: [{ id: "A" }, { id: "B" }, { id: "C" }],
+  links: [
+    { source: "A", target: "B" },
+    { source: "A", target: "C" },
+    { source: "A", target: "C" },
+  ],
+});
+//=> Graph { A -> B, A -> C }
 
-```ts
-declare const indegrees: (graph: Graph) => { [id: string]: number };
+getEdge(["A", "B"]);
+//=> 1
+getEdge(["A", "C"]);
+//=> 2
 ```
 
-Returns the graph's vertices mapped to their [indegree](https://en.wikipedia.org/wiki/Indegree) (the number of edges ending at the vertex).
+**Note**: Any extraneous data associated with nodes or links in the D3Graph representation will be ignored.
+
+Also see:
+
+- [toD3](#toD3)
+
+### getEdge
+
+```ts
+declare const getEdge: (graph: Graph, [u, v]: Edge) => number;
+```
+
+Get the weight of the given edge.
+
+Also see:
+
+- [addEdge](#addEdge)
+- [removeEdge](#removeEdge)
+- [setEdge](#setEdge)
+
+### indegree
+
+```ts
+declare const indegree: (graph: Graph, vertex: string, weighted?: boolean) => number;
+```
+
+Returns the [indegree](https://en.wikipedia.org/wiki/Indegree) for the given vertex.
+
+By default `weighted` is `false`, if set to `true` the result will be the sum of the edge weights (which could be zero or a negative value).
+
+Also see:
+
+- [degree](#degree)
+- [outdegree](#outdegree)
 
 ### isCyclic
 
@@ -218,13 +333,20 @@ declare const order: (graph: Graph) => number;
 
 Returns the number of vertices in the graph.
 
-### outdegrees
+### outdegree
 
 ```ts
-declare const outdegrees: (graph: Graph) => { [id: string]: number };
+declare const outdegree: (graph: Graph, vertex: string, weighted?: boolean) => number;
 ```
 
-Returns the graph's vertices mapped to their [outdegree](https://en.wikipedia.org/wiki/Outdegree) (the number of edges starting at the vertex).
+Returns the [outdegree](https://en.wikipedia.org/wiki/Outdegree) for the given vertex.
+
+By default `weighted` is `false`, if set to `true` the result will be the sum of the edge weights (which could be zero or a negative value).
+
+Also see:
+
+- [degree](#degree)
+- [indegree](#indegree)
 
 ### parents
 
@@ -232,15 +354,29 @@ Returns the graph's vertices mapped to their [outdegree](https://en.wikipedia.or
 declare const parents: (graph: Graph, vertex: string) => Set<string>;
 ```
 
-Returns all the vertices that are parents of the given vertex — there is an edge starting at the parent going to the given vertex. If there is an edge that both starts and ends at the given vertex, it will be considered a parent of itself and included in the result.
+Returns all the vertices that are parents of the given vertex (i.e. there is an edge starting at the parent vertex going to the given vertex).
+
+**Note**: If there is an edge that both starts and ends at the given vertex, it will be considered a parent of itself and included in the result.
+
+Also see:
+
+- [children](#children)
 
 ### removeEdge
 
 ```ts
-declare const removeEdge: (graph: Graph, edge: [string, string]) => Graph;
+declare const removeEdge: (graph: Graph, edge: Edge) => Graph;
 ```
 
 Removes an edge from a graph.
+
+**Note**: `removeEdge(graph, edge)` is equivalent to `setEdge(graph, edge, 0)`.
+
+Also see:
+
+- [addEdge](#addEdge)
+- [getEdge](#getEdge)
+- [setEdge](#setEdge)
 
 ### removeVertex
 
@@ -249,6 +385,24 @@ declare const removeVertex: (graph: Graph, vertex: string) => Graph;
 ```
 
 Removes a vertex from a graph.
+
+Also see:
+
+- [addVertex](#addVertex)
+
+### setEdge
+
+```ts
+declare const setEdge: (graph: Graph, [u, v]: Edge, weight: number) => Graph;
+```
+
+Set the weight of the given edge.
+
+Also see:
+
+- [addEdge](#addEdge)
+- [getEdge](#getEdge)
+- [removeEdge](#removeEdge)
 
 ### size
 
@@ -264,7 +418,34 @@ Returns the number of edges in the graph.
 declare const toD3: (graph: Graph) => D3Graph;
 ```
 
-Converts a graph from a [Graph](#graph) representation into a [D3Graph](#d3graph) representation.
+Converts a graph from a [Graph](#Graph) representation into a [D3Graph](#D3Graph) representation.
+
+Edges with a weight greater than 2 will result in multiple links being generated in the D3Graph.
+
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { A, B, C }
+
+graph = setEdge(graph, ["A", "B"], 1);
+//=> Graph { A -> B, C }
+
+graph = setEdge(graph, ["A", "C"], 2);
+//=> Graph { A -> B, A -> C }
+
+toD3(graph);
+//=> {
+//     nodes: [{ id: "A" }, { id: "B" }, { id: "C" }],
+//     links: [
+//       { source: "A", target: "B" },
+//       { source: "A", target: "C" },
+//       { source: "A", target: "C" },
+//     ],
+//   }
+```
+
+Also see:
+
+- [fromD3](#fromD3)
 
 ### topologicalSort
 
@@ -273,6 +454,8 @@ declare const topologicalSort: (graph: Graph) => Array<string>;
 ```
 
 Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns an array of the graph's vertices sorted using a [topological sort](https://en.wikipedia.org/wiki/Topological_sorting).
+
+**Note**: If the given graph contains cycles (checked with [isCyclic](#isCyclic)), an error will be thrown.
 
 ### transpose
 
@@ -284,16 +467,16 @@ Flips the orientation of all edges in a directed graph.
 
 ```js
 let graph = create(3, (i) => String.fromCharCode(65 + i));
-//=> [Graph] { A, B, C }
+//=> Graph { A, B, C }
 
 graph = addEdge(graph, ["A", "B"]);
-//=> [Graph] { A -> B, C }
+//=> Graph { A -> B, C }
 
 graph = addEdge(graph, ["B", "C"]);
-//=> [Graph] { A -> B -> C }
+//=> Graph { A -> B, B -> C }
 
-graph = transpose(graph);
-//=> [Graph] { A <- B <- C }
+transpose(graph);
+//=> Graph { B -> A, C -> B }
 ```
 
 ### vertices
@@ -303,13 +486,3 @@ declare const vertices: (graph: Graph) => Set<string>;
 ```
 
 Returns the vertices in the graph.
-
-## Roadmap
-
-1. Interactive demo.
-2. Graphics in the README to better explain the concepts for anyone not familiar with graph theory.
-3. Submodules so functions can be imported individually.
-4. Support for undirected graphs.
-5. Weights for edges & nodes.
-6. Pathfinding algorithms.
-7. Functional programming friendly variations of the functions (argument order reversed to support currying).
