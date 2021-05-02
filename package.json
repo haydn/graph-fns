@@ -1,6 +1,6 @@
 {
   "name": "graph-fns",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A utility library for working with graphs.",
   "repository": "github:haydn/graph-fns",
   "keywords": [
