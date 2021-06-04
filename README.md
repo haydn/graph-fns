@@ -12,7 +12,7 @@
 ## Features
 
 - Pure functions and immutable data patterns.
-- Compatible with Node.js and browser runtimes.
+- Works in Node.js and browser runtimes.
 - Flow and TypeScript declarations included.
 - CommonJS, UMD and ESM modules provided.
 - Zero dependencies.
@@ -41,16 +41,16 @@ npm install graph-fns
 ## Usage
 
 ```js
-import { create, addEdge, isCyclic, topologicalSort } from "graph-fns";
+import { create, addEdge, isCyclic, topologicalSort, degree, addVertex } from "graph-fns";
 
 let graph = create(3, (i) => String.fromCharCode(65 + i));
-//=> Graph { A, B, C }
+//=> Graph { "A", "B", "C" }
 
 graph = addEdge(graph, ["A", "C"]);
-//=> Graph { A -> C, B }
+//=> Graph { "A" -> "C", "B" }
 
 graph = addEdge(graph, ["B", "A"]);
-//=> Graph { B -> A, A -> C }
+//=> Graph { "A" -> "C", "B" -> "A" }
 
 isCyclic(graph);
 //=> false
@@ -62,16 +62,16 @@ degree(graph, "A");
 //=> 2
 
 graph = addVertex(graph, "D");
-//=> Graph { B -> A, A -> C, D }
+//=> Graph { "A" -> "C", "B" -> "A", "D" }
 
 graph = addEdge(graph, ["C", "D"]);
-//=> Graph { B -> A, A -> C, C -> D }
+//=> Graph { "A" -> "C", "B" -> "A", "C" -> "D" }
 
 descendants(graph, "A");
-//=> Set { C, D }
+//=> Set { "C", "D" }
 
 graph = addEdge(graph, ["D", "B"]);
-//=> Graph { B -> A, A -> C, C -> D, D -> B }
+//=> Graph { "A" -> "C", "B" -> "A", "C" -> "D", "D" -> "B" }
 
 isCyclic(graph);
 //=> true
@@ -137,6 +137,14 @@ Adds a new edge to the graph from vertex `u` to vertex `v`.
 
 **Note**: `addEdge(graph, edge)` is equivalent to `setEdge(graph, edge, 1)`.
 
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+graph = addEdge(graph, ["A", "B"]);
+//=> Graph { "A" -> "B", "C" }
+```
+
 Also see:
 
 - [removeEdge](#removeEdge)
@@ -170,6 +178,7 @@ Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns all
 Also see:
 
 - [descendants](#descendants)
+- [parents](#parents)
 
 ### children
 
@@ -184,6 +193,7 @@ Returns all the vertices that are children of the given vertex (i.e. there is an
 Also see:
 
 - [parents](#parents)
+- [descendants](#descendants)
 
 ### clone
 
@@ -246,6 +256,7 @@ Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns all
 Also see:
 
 - [ancestors](#ancestors)
+- [children](#children)
 
 ### edges
 
@@ -274,7 +285,7 @@ const graph = fromD3({
     { source: "A", target: "C" },
   ],
 });
-//=> Graph { A -> B, A -> C }
+//=> Graph { "A" -> "B", "A" -> "C" }
 
 getEdge(["A", "B"]);
 //=> 1
@@ -333,6 +344,18 @@ declare const order: (graph: Graph) => number;
 
 Returns the number of vertices in the graph.
 
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+order(graph);
+//=> 3
+```
+
+Also see:
+
+- [size](#size)
+
 ### outdegree
 
 ```ts
@@ -360,6 +383,7 @@ Returns all the vertices that are parents of the given vertex (i.e. there is an 
 
 Also see:
 
+- [ancestors](#ancestors)
 - [children](#children)
 
 ### removeEdge
@@ -371,6 +395,17 @@ declare const removeEdge: (graph: Graph, edge: Edge) => Graph;
 Removes an edge from a graph.
 
 **Note**: `removeEdge(graph, edge)` is equivalent to `setEdge(graph, edge, 0)`.
+
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+graph = addEdge(graph, ["A", "B"]);
+//=> Graph { "A" -> "B", "C" }
+
+graph = removeEdge(graph, ["A", "B"]);
+//=> Graph { "A", "B", "C" }
+```
 
 Also see:
 
@@ -398,6 +433,19 @@ declare const setEdge: (graph: Graph, [u, v]: Edge, weight: number) => Graph;
 
 Set the weight of the given edge.
 
+**Note**: `setEdge(graph, edge, 1)` is equivalent to `addEdge(graph, edge)` and `setEdge(graph, edge, 0)` is equivalent to `removeEdge(graph, edge)`.
+
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+graph = setEdge(graph, ["A", "B"], 1);
+//=> Graph { "A" -> "B", "C" }
+
+graph = setEdge(graph, ["A", "B"], 0);
+//=> Graph { "A", "B", "C" }
+```
+
 Also see:
 
 - [addEdge](#addEdge)
@@ -412,6 +460,24 @@ declare const size: (graph: Graph) => number;
 
 Returns the number of edges in the graph.
 
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+graph = addEdge(graph, ["A", "B"]);
+//=> Graph { "A" -> "B", "C" }
+
+graph = addEdge(graph, ["B", "C"]);
+//=> Graph { "A" -> "B", "B" -> "C" }
+
+size(graph);
+//=> 2
+```
+
+Also see:
+
+- [order](#order)
+
 ### toD3
 
 ```ts
@@ -420,17 +486,17 @@ declare const toD3: (graph: Graph) => D3Graph;
 
 Converts a graph from a [Graph](#Graph) representation into a [D3Graph](#D3Graph) representation.
 
-Edges with a weight greater than 2 will result in multiple links being generated in the D3Graph.
+Edges with a weight of 2 or greater will result in multiple links being generated in the D3Graph.
 
 ```js
 let graph = create(3, (i) => String.fromCharCode(65 + i));
-//=> Graph { A, B, C }
+//=> Graph { "A", "B", "C" }
 
 graph = setEdge(graph, ["A", "B"], 1);
-//=> Graph { A -> B, C }
+//=> Graph { "A" -> "B", "C" }
 
 graph = setEdge(graph, ["A", "C"], 2);
-//=> Graph { A -> B, A -> C }
+//=> Graph { "A" -> "B", "A" -> "C" }
 
 toD3(graph);
 //=> {
@@ -457,6 +523,20 @@ Given a [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph), returns an 
 
 **Note**: If the given graph contains cycles (checked with [isCyclic](#isCyclic)), an error will be thrown.
 
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+graph = addEdge(graph, ["A", "C"]);
+//=> Graph { "A" -> "C", "B" }
+
+graph = addEdge(graph, ["C", "B"]);
+//=> Graph { "A" -> "C", "C" -> "B" }
+
+topologicalSort(graph);
+//=> ["A", "C", "B"]
+```
+
 ### transpose
 
 ```ts
@@ -467,16 +547,16 @@ Flips the orientation of all edges in a directed graph.
 
 ```js
 let graph = create(3, (i) => String.fromCharCode(65 + i));
-//=> Graph { A, B, C }
+//=> Graph { "A", "B", "C" }
 
 graph = addEdge(graph, ["A", "B"]);
-//=> Graph { A -> B, C }
+//=> Graph { "A" -> "B", "C" }
 
 graph = addEdge(graph, ["B", "C"]);
-//=> Graph { A -> B, B -> C }
+//=> Graph { "A" -> "B", "B" -> "C" }
 
 transpose(graph);
-//=> Graph { B -> A, C -> B }
+//=> Graph { "B" -> "A", "C" -> "B" }
 ```
 
 ### vertices
