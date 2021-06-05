@@ -45,6 +45,7 @@ test("addEdge", (t) => {
       a: { a: 0, b: 1 },
       b: { a: 0, b: 0 },
     },
+    "Base case",
   );
 
   t.deepEqual(
@@ -59,15 +60,20 @@ test("addEdge", (t) => {
       a: { a: 0, b: 1.5 },
       b: { a: 0, b: 0 },
     },
+    "Adding an edge that already exists should be a no-op",
   );
 });
 
 test("addVertex", (t) => {
-  t.plan(2);
+  t.plan(3);
 
-  t.deepEqual(addVertex({}, "a"), {
-    a: { a: 0 },
-  });
+  t.deepEqual(
+    addVertex({}, "a"),
+    {
+      a: { a: 0 },
+    },
+    "Base case",
+  );
 
   t.deepEqual(
     addVertex(
@@ -80,6 +86,20 @@ test("addVertex", (t) => {
       a: { a: 0, b: 0 },
       b: { a: 0, b: 0 },
     },
+    "Adding a vertex to an existing graph should create empty rows and columns",
+  );
+
+  t.deepEqual(
+    addVertex(
+      {
+        a: { a: 0 },
+      },
+      "a",
+    ),
+    {
+      a: { a: 0 },
+    },
+    "Adding a vertex that already exists should be a no-op",
   );
 });
 
@@ -119,7 +139,7 @@ test("ancestors", (t) => {
       },
       "b",
     );
-  });
+  }, "Graphs with cycles should throw an error");
 });
 
 test("children", (t) => {
@@ -145,25 +165,33 @@ test("children", (t) => {
       "a",
     ),
     new Set(["a"]),
+    "Loops should cause the vertex to be listed as a child of itself",
   );
 });
 
 test("clone", (t) => {
   t.plan(4);
 
-  const orginal = {
+  const original = {
     a: { a: 0, b: 1 },
     b: { a: 0, b: 0 },
   };
 
-  t.deepEqual(clone(orginal), orginal);
-  t.notEqual(clone(orginal), orginal);
-  t.notEqual(clone(orginal).a, orginal.a);
-  t.notEqual(clone(orginal).b, orginal.b);
+  t.deepEqual(
+    clone(original),
+    original,
+    "Cloning should return a graph exactly equal to the original graph",
+  );
+
+  t.notEqual(clone(original), original, "Cloning should make a copy of the graph");
+  t.notEqual(clone(original).a, original.a, "Cloning should make a copy of the graph");
+  t.notEqual(clone(original).b, original.b, "Cloning should make a copy of the graph");
 });
 
 test("create", (t) => {
-  t.plan(1);
+  t.plan(2);
+
+  t.deepEqual(create(1), { 0: { 0: 0 } }), "Base case";
 
   t.deepEqual(
     create(2, (i) => `${i}!`),
@@ -171,22 +199,26 @@ test("create", (t) => {
       "0!": { "0!": 0, "1!": 0 },
       "1!": { "0!": 0, "1!": 0 },
     },
+    "Custom ID function is used",
   );
 });
 
 test("degree", (t) => {
-  t.plan(2);
+  t.plan(5);
+
+  t.equal(degree({ a: { a: 0 } }, "a"), 0, "Base case");
 
   t.equal(
     degree(
       {
         a: { a: 0, b: 1, c: 0 },
         b: { a: 2, b: 0, c: 0 },
-        c: { a: 0.5, b: 0, c: 0 },
+        c: { a: -0.5, b: 0, c: 0 },
       },
       "a",
     ),
     3,
+    "The unweighted degree should be the count of edges",
   );
 
   t.equal(
@@ -194,12 +226,36 @@ test("degree", (t) => {
       {
         a: { a: 0, b: 1, c: 0 },
         b: { a: 2, b: 0, c: 0 },
-        c: { a: 0.5, b: 0, c: 0 },
+        c: { a: -0.5, b: 0, c: 0 },
       },
       "a",
       true,
     ),
-    3.5,
+    2.5,
+    "The weighted degree should be the sum of edge weights",
+  );
+
+  t.equal(
+    degree(
+      {
+        a: { a: 1.5 },
+      },
+      "a",
+    ),
+    2,
+    "Loops should count twice towards the degree",
+  );
+
+  t.equal(
+    degree(
+      {
+        a: { a: 1.5 },
+      },
+      "a",
+      true,
+    ),
+    3,
+    "Loops should count twice towards the degree",
   );
 });
 
@@ -336,7 +392,9 @@ test("indegree", (t) => {
 });
 
 test("isCyclic", (t) => {
-  t.plan(8);
+  t.plan(9);
+
+  t.equal(isCyclic({}), false);
 
   t.equal(
     isCyclic({
