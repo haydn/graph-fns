@@ -12,6 +12,8 @@ import {
   getEdge,
   indegree,
   isCyclic,
+  isUndirected,
+  makeUndirected,
   order,
   outdegree,
   parents,
@@ -23,6 +25,7 @@ import {
   topologicalSort,
   transpose,
   vertices,
+  vertexPairs,
 } from "./index";
 
 import test from "tape";
@@ -400,6 +403,80 @@ test("isCyclic", (t) => {
   );
 });
 
+test("isUndirected", (t) => {
+  t.plan(4);
+
+  t.equal(isUndirected({}), true);
+
+  t.equal(isUndirected({ a: { a: 1 } }), true);
+
+  t.equal(
+    isUndirected({
+      a: { a: 1, b: 1 },
+      b: { a: 0, b: 0 },
+    }),
+    false,
+  );
+
+  t.equal(
+    isUndirected({
+      a: { a: 0, b: 1 },
+      b: { a: 1, b: 0 },
+    }),
+    true,
+  );
+});
+
+test("makeUndirected", (t) => {
+  t.plan(5);
+
+  t.deepEqual(makeUndirected({}), {});
+
+  t.deepEqual(makeUndirected({ a: { a: 1 } }), { a: { a: 1 } });
+
+  t.deepEqual(
+    makeUndirected({
+      a: { a: 1, b: 1, c: 0 },
+      b: { a: 0, b: 0, c: 1 },
+      c: { a: 0, b: 0, c: 0 },
+    }),
+    {
+      a: { a: 1, b: 1, c: 0 },
+      b: { a: 1, b: 0, c: 1 },
+      c: { a: 0, b: 1, c: 0 },
+    },
+  );
+
+  t.deepEqual(
+    makeUndirected({
+      a: { a: 0.5, b: -1, c: 0 },
+      b: { a: 0, b: 0, c: -1 },
+      c: { a: 0, b: 0, c: 0 },
+    }),
+    {
+      a: { a: 0.5, b: -1, c: 0 },
+      b: { a: -1, b: 0, c: -1 },
+      c: { a: 0, b: -1, c: 0 },
+    },
+  );
+
+  t.deepEqual(
+    makeUndirected(
+      {
+        a: { a: 2, b: 3, c: 0 },
+        b: { a: 2, b: 0, c: 1 },
+        c: { a: 0, b: 0, c: 0 },
+      },
+      (a, b) => a * b,
+    ),
+    {
+      a: { a: 2, b: 6, c: 0 },
+      b: { a: 6, b: 0, c: 1 },
+      c: { a: 0, b: 1, c: 0 },
+    },
+  );
+});
+
 test("order", (t) => {
   t.plan(3);
 
@@ -746,5 +823,25 @@ test("vertices", (t) => {
       c: { a: 0, b: 0, c: 0 },
     }),
     new Set(["a", "b", "c"]),
+  );
+});
+
+test("vertexPairs", (t) => {
+  t.plan(1);
+
+  t.deepEqual(
+    vertexPairs({
+      a: { a: 0, b: 0, c: 0 },
+      b: { a: 0, b: 0, c: 0 },
+      c: { a: 0, b: 0, c: 0 },
+    }),
+    new Set([
+      ["a", "a"],
+      ["a", "b"],
+      ["a", "c"],
+      ["b", "b"],
+      ["b", "c"],
+      ["c", "c"],
+    ]),
   );
 });

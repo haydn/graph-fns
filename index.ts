@@ -189,6 +189,31 @@ const _isCyclic = (
   return false;
 };
 
+const isUndirected = (graph: Graph): boolean => {
+  for (let [u, v] of vertexPairs(graph)) {
+    if (graph[u][v] !== graph[v][u]) return false;
+  }
+  return true;
+};
+
+const makeUndirected = (
+  graph: Graph,
+  merge: (a: number, b: number) => number = (a, b) => Math.max(a, b),
+): Graph => {
+  const result = clone(graph);
+
+  for (let [u, v] of vertexPairs(graph)) {
+    const weight =
+      u === v || graph[u][v] === 0 || graph[v][u] === 0
+        ? graph[u][v] || graph[v][u]
+        : merge(graph[u][v], graph[v][u]);
+    result[u][v] = weight;
+    result[v][u] = weight;
+  }
+
+  return result;
+};
+
 const order = (graph: Graph): number => {
   let result = 0;
   for (let u in graph) result += 1;
@@ -335,6 +360,19 @@ const transpose = (graph: Graph): Graph => {
 
 const vertices = (graph: Graph): Set<string> => new Set(Object.keys(graph));
 
+const vertexPairs = (graph: Graph): Set<[string, string]> => {
+  const result: Set<[string, string]> = new Set();
+  const vertices = Object.keys(graph);
+
+  for (let u = 0; u < vertices.length; u++) {
+    for (let v = u; v < vertices.length; v++) {
+      result.add([vertices[u], vertices[v]]);
+    }
+  }
+
+  return result;
+};
+
 export {
   D3Graph,
   Graph,
@@ -351,6 +389,8 @@ export {
   getEdge,
   indegree,
   isCyclic,
+  isUndirected,
+  makeUndirected,
   order,
   outdegree,
   parents,
@@ -362,4 +402,5 @@ export {
   topologicalSort,
   transpose,
   vertices,
+  vertexPairs,
 };

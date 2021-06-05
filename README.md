@@ -84,10 +84,16 @@ isCyclic(graph);
 | graph / network | A system of vertices connected in pairs by edges. ([Wikipedia](<https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)>)) |
 | vertex / node | The fundamental unit of which graphs are formed. ([Wikipedia](<https://en.wikipedia.org/wiki/Vertex_(graph_theory)>)) |
 | edge / link / branch / arc | A connection between two vertices in a graph. ([Wikipedia](<https://en.wikipedia.org/wiki/Edge_(graph_theory)>)) |
+| order | The number of vertices in a graph. |
+| size | The number of edges in a graph. |
 | weighted graph | A graph with a numeric weight associated with each edge. ([Wolfram MathWorld](https://mathworld.wolfram.com/WeightedGraph.html)) |
-| directed graph | A graph where each edge has a direction. ([Wikipedia](https://en.wikipedia.org/wiki/Directed_graph)) |
+| directed graph | A graph where the edges have direction. ([Wikipedia](https://en.wikipedia.org/wiki/Directed_graph)) |
+| undirected graph | A graph where the edges do not have a direction. ([Math Insight](https://mathinsight.org/definition/undirected_graph)) |
 | path | A sequence of edges that connect a set of vertices where each vertex is distinct. ([Wikipedia](<https://en.wikipedia.org/wiki/Path_(graph_theory)>)) |
-| directed path | A path where all edges are orientated in the same direction. ([Wikipedia](<https://en.wikipedia.org/wiki/Path_(graph_theory)>)) |
+| directed path | A path where all edges are orientated in the same direction. |
+| undirected path | A path where the edges can be orientated in any direction. |
+| loop / buckle | An edge which starts and ends at the same node. ([Wikipedia](<(https://en.wikipedia.org/wiki/Loop_(graph_theory))>) |
+| cycle | A path that starts and ends at the same node. ([Wikipedia](<https://en.wikipedia.org/wiki/Cycle_(graph_theory)>)) |
 
 ## Types
 
@@ -336,6 +342,55 @@ declare const isCyclic: (graph: Graph) => boolean;
 
 Returns `true` if the graph provided contains any [cycles](<https://en.wikipedia.org/wiki/Cycle_(graph_theory)>) (including "loops" — when an edge that starts and ends at the same vertex), otherwise returns `false`.
 
+### isUndirected
+
+```ts
+declare const isUndirected: (graph: Graph) => boolean;
+```
+
+Returns `true` if the graph can be considered an [undirected graph](https://mathinsight.org/definition/undirected_graph) — every edge in the graph (from vertex A to B) has a mutual edge (from vertex B to A) with an equal weight. Loops are considered bidirectional and are allow in a undirected graph.
+
+```js
+let graph = create(2, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B" }
+
+isUndirected(graph);
+//=> true
+
+graph = addEdge(graph, ["A", "B"]);
+//=> Graph { "A" -> "B" }
+
+isUndirected(graph);
+//=> false
+
+graph = addEdge(graph, ["B", "A"]);
+//=> Graph { "A" <-> "B" }
+
+isUndirected(graph);
+//=> true
+```
+
+### makeUndirected
+
+```ts
+declare const makeUndirected: (graph: Graph, merge?: (a: number, b: number) => number) => Graph;
+```
+
+Converts a directed graph to an undirected graph by either adding edges to make them mutual or balancing the weights of mutual edges that aren't already equal.
+
+The `merge` function is used to determine the weight of edges in cases where mutual edges with differing weights already exist. If not provide the default method is to use the highest of the two edge weights (`(a, b) => Math.max(a, b)`).
+
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+graph = addEdge(graph, ["A", "B"]);
+//=> Graph { "A" -> "B", "C" }
+
+graph = makeUndirected(graph);
+//=> Graph { "A" <-> "B", "C" }
+```
+
 ### order
 
 ```ts
@@ -566,3 +621,19 @@ declare const vertices: (graph: Graph) => Set<string>;
 ```
 
 Returns the vertices in the graph.
+
+### vertexPairs
+
+```ts
+declare const vertexPairs: (graph: Graph) => Set<[string, string]>;
+```
+
+Returns a list of all pairs of vertices in the graph irrespective of the edges present in the graph.
+
+```js
+let graph = create(3, (i) => String.fromCharCode(65 + i));
+//=> Graph { "A", "B", "C" }
+
+vertexPairs(graph);
+//=> Set { ["A", "A"], ["A", "B"], ["A", "C"], ["B", "B"], ["B", "C"], ["C", "C"] }
+```
