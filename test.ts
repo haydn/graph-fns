@@ -31,7 +31,7 @@ import {
 import test from "tape";
 
 test("addEdge", (t) => {
-  t.plan(2);
+  t.plan(3);
 
   t.deepEqual(
     addEdge(
@@ -61,6 +61,22 @@ test("addEdge", (t) => {
       b: { a: 0, b: 0 },
     },
     "Adding an edge that already exists should be a no-op",
+  );
+
+  t.deepEqual(
+    addEdge(
+      {
+        a: { a: 0, b: 0 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+      { undirected: true },
+    ),
+    {
+      a: { a: 0, b: 1 },
+      b: { a: 1, b: 0 },
+    },
+    "Add undirected edge",
   );
 });
 
@@ -204,7 +220,7 @@ test("create", (t) => {
 });
 
 test("degree", (t) => {
-  t.plan(5);
+  t.plan(7);
 
   t.equal(degree({ a: { a: 0 } }, "a"), 0, "Base case");
 
@@ -229,7 +245,7 @@ test("degree", (t) => {
         c: { a: -0.5, b: 0, c: 0 },
       },
       "a",
-      true,
+      { weighted: true },
     ),
     2.5,
     "The weighted degree should be the sum of edge weights",
@@ -252,11 +268,36 @@ test("degree", (t) => {
         a: { a: 1.5 },
       },
       "a",
-      true,
+      { weighted: true },
     ),
     3,
-    "Loops should count twice towards the degree",
+    "Loops should count twice towards the weighted degree",
   );
+
+  t.equal(
+    degree(
+      {
+        a: { a: 0, b: 1, c: 1 },
+        b: { a: 1, b: 0, c: 0 },
+        c: { a: 1, b: 0, c: 0 },
+      },
+      "a",
+      { undirected: true },
+    ),
+    2,
+    "Reciprocal edges should only be counted once in undirected mode",
+  );
+
+  t.throws(() => {
+    degree(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      "a",
+      { undirected: true },
+    );
+  }, "Using the undirected option on a directed graph should throw an error");
 });
 
 test("descendants", (t) => {
@@ -295,11 +336,11 @@ test("descendants", (t) => {
       },
       "a",
     );
-  });
+  }, "A graph with cycles should throw an error");
 });
 
 test("edges", (t) => {
-  t.plan(2);
+  t.plan(4);
 
   t.deepEqual(
     edges({
@@ -325,10 +366,37 @@ test("edges", (t) => {
       ["c", "a"],
     ]),
   );
+
+  t.deepEqual(
+    edges(
+      {
+        a: { a: 1, b: 1, c: 0 },
+        b: { a: 1, b: 0, c: 1 },
+        c: { a: 0, b: 1, c: 0 },
+      },
+      { undirected: true },
+    ),
+    new Set([
+      ["a", "a"],
+      ["a", "b"],
+      ["b", "c"],
+    ]),
+    "Undirected mode",
+  );
+
+  t.throws(() => {
+    edges(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      { undirected: true },
+    );
+  }, "Using the undirected option on a directed graph should throw an error");
 });
 
 test("fromD3", (t) => {
-  t.plan(1);
+  t.plan(2);
 
   t.deepEqual(
     fromD3({
@@ -343,6 +411,25 @@ test("fromD3", (t) => {
       a: { a: 1, b: 1, c: 1 },
       b: { a: 0, b: 0, c: 0 },
       c: { a: 0, b: 0, c: 0 },
+    },
+  );
+
+  t.deepEqual(
+    fromD3(
+      {
+        nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
+        links: [
+          { source: "a", target: "a" },
+          { source: "a", target: "b" },
+          { source: "a", target: "c" },
+        ],
+      },
+      { undirected: true },
+    ),
+    {
+      a: { a: 1, b: 1, c: 1 },
+      b: { a: 1, b: 0, c: 0 },
+      c: { a: 1, b: 0, c: 0 },
     },
   );
 });
@@ -385,80 +472,136 @@ test("indegree", (t) => {
         c: { a: 0.5, b: 0, c: 0 },
       },
       "a",
-      true,
+      { weighted: true },
     ),
     2.5,
   );
 });
 
 test("isCyclic", (t) => {
-  t.plan(9);
+  t.test("directed graph", (t) => {
+    t.plan(9);
 
-  t.equal(isCyclic({}), false);
+    t.equal(isCyclic({}), false);
 
-  t.equal(
-    isCyclic({
-      a: { a: 0 },
-    }),
-    false,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 0 },
+      }),
+      false,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 0, b: 0 },
-      b: { a: 0, b: 0 },
-    }),
-    false,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 0, b: 0 },
+        b: { a: 0, b: 0 },
+      }),
+      false,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 0, b: 1 },
-      b: { a: 0, b: 0 },
-    }),
-    false,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      }),
+      false,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 0, b: 1, c: 1 },
-      b: { a: 0, b: 0, c: 0 },
-      c: { a: 0, b: 0, c: 0 },
-    }),
-    false,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 0, b: 1, c: 1 },
+        b: { a: 0, b: 0, c: 0 },
+        c: { a: 0, b: 0, c: 0 },
+      }),
+      false,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 1 },
-    }),
-    true,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 1 },
+      }),
+      true,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 0, b: 1 },
-      b: { a: 1, b: 0 },
-    }),
-    true,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 0, b: 1 },
+        b: { a: 1, b: 0 },
+      }),
+      true,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 0, b: 1, c: 0 },
-      b: { a: 0, b: 0, c: 1 },
-      c: { a: 1, b: 0, c: 0 },
-    }),
-    true,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 0, b: 0, c: 1 },
+        c: { a: 1, b: 0, c: 0 },
+      }),
+      true,
+    );
 
-  t.equal(
-    isCyclic({
-      a: { a: 1, b: 0 },
-      b: { a: 0, b: 1 },
-    }),
-    true,
-  );
+    t.equal(
+      isCyclic({
+        a: { a: 1, b: 0 },
+        b: { a: 0, b: 1 },
+      }),
+      true,
+    );
+  });
+
+  t.test("undirected graph", (t) => {
+    t.plan(5);
+
+    t.equal(isCyclic({}, { undirected: true }), false, "Base case");
+
+    t.equal(
+      isCyclic(
+        {
+          a: { a: 0, b: 1 },
+          b: { a: 1, b: 0 },
+        },
+        { undirected: true },
+      ),
+      false,
+      "Single edge",
+    );
+
+    t.equal(
+      isCyclic(
+        {
+          a: { a: 0, b: 1, c: 0 },
+          b: { a: 1, b: 0, c: 1 },
+          c: { a: 0, b: 1, c: 0 },
+        },
+        { undirected: true },
+      ),
+      false,
+      "2 edge graph",
+    );
+
+    t.equal(
+      isCyclic(
+        {
+          a: { a: 0, b: 1, c: 1 },
+          b: { a: 1, b: 0, c: 1 },
+          c: { a: 1, b: 1, c: 0 },
+        },
+        { undirected: true },
+      ),
+      true,
+      "Complete graph",
+    );
+
+    t.throws(() => {
+      isCyclic(
+        {
+          a: { a: 0, b: 1 },
+          b: { a: 0, b: 0 },
+        },
+        { undirected: true },
+      );
+    }, "Using the undirected option on a directed graph should throw an error");
+  });
 });
 
 test("isUndirected", (t) => {
@@ -579,7 +722,7 @@ test("outdegree", (t) => {
         c: { a: 0, b: 0, c: 0 },
       },
       "a",
-      true,
+      { weighted: true },
     ),
     2.5,
   );
@@ -612,7 +755,7 @@ test("parents", (t) => {
 });
 
 test("removeEdge", (t) => {
-  t.plan(2);
+  t.plan(3);
 
   t.deepEqual(
     removeEdge(
@@ -643,6 +786,22 @@ test("removeEdge", (t) => {
       b: { a: 0, b: 0 },
     },
   );
+
+  t.deepEqual(
+    removeEdge(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 1, b: 0 },
+      },
+      ["a", "b"],
+      { undirected: true },
+    ),
+    {
+      a: { a: 0, b: 0 },
+      b: { a: 0, b: 0 },
+    },
+    "Undirected",
+  );
 });
 
 test("removeVertex", (t) => {
@@ -665,7 +824,7 @@ test("removeVertex", (t) => {
 });
 
 test("setEdge", (t) => {
-  t.plan(3);
+  t.plan(4);
 
   t.deepEqual(
     setEdge(
@@ -711,10 +870,27 @@ test("setEdge", (t) => {
       b: { a: 0, b: 0 },
     },
   );
+
+  t.deepEqual(
+    setEdge(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      ["a", "b"],
+      1.5,
+      { undirected: true },
+    ),
+    {
+      a: { a: 0, b: 1.5 },
+      b: { a: 1.5, b: 0 },
+    },
+    "Undirected",
+  );
 });
 
 test("size", (t) => {
-  t.plan(3);
+  t.plan(5);
 
   t.equal(size({}), 0);
 
@@ -734,10 +910,33 @@ test("size", (t) => {
     }),
     2,
   );
+
+  t.equal(
+    size(
+      {
+        a: { a: 0, b: 1, c: 0 },
+        b: { a: 1, b: 0, c: 1 },
+        c: { a: 0, b: 1, c: 0 },
+      },
+      { undirected: true },
+    ),
+    2,
+    "Undirected",
+  );
+
+  t.throws(() => {
+    size(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      { undirected: true },
+    );
+  }, "Using the undirected option on a directed graph should throw an error");
 });
 
 test("toD3", (t) => {
-  t.plan(1);
+  t.plan(3);
 
   t.deepEqual(
     toD3({
@@ -755,6 +954,39 @@ test("toD3", (t) => {
       ],
     },
   );
+
+  t.deepEqual(
+    toD3(
+      {
+        a: { a: 0, b: 1, c: 1 },
+        b: { a: 1, b: 0, c: 0 },
+        c: { a: 1, b: 0, c: 0 },
+      },
+      { undirected: true },
+    ),
+    {
+      nodes: [{ id: "a" }, { id: "b" }, { id: "c" }],
+      links: [
+        { source: "a", target: "b" },
+        { source: "a", target: "c" },
+      ],
+    },
+  );
+
+  t.throws(() => {
+    toD3(
+      {
+        a: { a: 0, b: 1 },
+        b: { a: 0, b: 0 },
+      },
+      { undirected: true },
+    );
+  }, "Using the undirected option on a directed graph should throw an error");
+});
+
+test("toDirected", (t) => {
+  t.plan(1);
+  t.skip("TODO");
 });
 
 test("topologicalSort", (t) => {
