@@ -92,8 +92,8 @@ isCyclic(graph);
 | path | A sequence of edges that connect a set of vertices where each vertex is distinct. ([Wikipedia](<https://en.wikipedia.org/wiki/Path_(graph_theory)>)) |
 | directed path | A path where all edges are orientated in the same direction. |
 | undirected path | A path where the edges can be orientated in any direction. |
-| loop / buckle | An edge which starts and ends at the same node. ([Wikipedia](<(https://en.wikipedia.org/wiki/Loop_(graph_theory))>) |
-| cycle | A path that starts and ends at the same node. ([Wikipedia](<https://en.wikipedia.org/wiki/Cycle_(graph_theory)>)) |
+| loop / buckle | An edge which starts and ends at the same vertex. ([Wikipedia](<https://en.wikipedia.org/wiki/Loop_(graph_theory)>)) |
+| cycle | A path that starts and ends at the same vertex. ([Wikipedia](<https://en.wikipedia.org/wiki/Cycle_(graph_theory)>)) |
 
 ## Types
 
