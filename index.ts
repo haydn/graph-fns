@@ -219,7 +219,7 @@ const _isCyclicDirected = (
 const _isCyclicUndirected = (
   graph: Graph,
   visited: Set<string>,
-  parent: string,
+  parent: string | undefined,
   vertex: string,
 ): boolean => {
   visited.add(vertex);
@@ -354,8 +354,8 @@ const toD3 = (graph: Graph, options?: { undirected?: boolean }): D3Graph => {
   }
 
   const resolvedGraph = options?.undirected ? toDirected(graph) : graph;
-  const nodes = [];
-  const links = [];
+  const nodes: Array<{ id: string }> = [];
+  const links: Array<{ source: string; target: string }> = [];
 
   for (let u in resolvedGraph) {
     nodes[nodes.length] = { id: u };
@@ -411,7 +411,7 @@ const topologicalSort = (graph: Graph): Array<string> => {
   }
 
   while (queue.length !== 0) {
-    const v = queue.shift();
+    const v = queue.shift()!;
     result.push(v);
     for (let i in graph) {
       if (graph[v][i] !== 0 && !visited.has(i)) {
