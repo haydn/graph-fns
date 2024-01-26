@@ -1,23 +1,21 @@
-type D3Graph = {
+type Graph<T extends string = string> = Record<T, Record<T, number>>;
+
+type D3Graph<T extends string = string> = {
   nodes: Array<{
-    id: string;
+    id: T;
   }>;
   links: Array<{
-    source: string;
-    target: string;
+    source: T;
+    target: T;
   }>;
 };
 
-type Edge = [string, string];
-
-type Graph = {
-  [u: string]: {
-    [v: string]: number;
-  };
-};
-
-const addEdge = (graph: Graph, [u, v]: Edge, options?: { undirected?: boolean }): Graph => {
-  const result = clone(graph);
+const addEdge = <T extends string = string>(
+  graph: Graph<T>,
+  [u, v]: [T, T],
+  options?: { undirected?: boolean },
+): Graph<T> => {
+  const result = clone<T>(graph);
 
   if (result[u][v] === 0) {
     result[u][v] = 1;
@@ -30,22 +28,28 @@ const addEdge = (graph: Graph, [u, v]: Edge, options?: { undirected?: boolean })
   return result;
 };
 
-const addVertex = (graph: Graph, vertex: string): Graph => {
-  if (graph[vertex]) return graph;
+const addVertex = <T1 extends string = string, T2 extends T1 | string = string>(
+  graph: Graph<T1>,
+  vertex: T2,
+): Graph<T2> => {
+  if (vertex in graph) return graph as Graph<T2>;
 
-  const result = clone(graph);
+  const result = clone<T1>(graph) as Graph<T2>;
 
   for (let v in result) result[v][vertex] = 0;
-  result[vertex] = {};
+  result[vertex] = {} as Graph<T2>[T2];
   for (let v in result) result[vertex][v] = 0;
 
   return result;
 };
 
-const ancestors = (graph: Graph, vertex: string): Set<string> => {
+const ancestors = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+): Set<T1> => {
   if (isCyclic(graph)) throw "Cannot retrieve ancestors in a graph that contains cycles.";
 
-  let result: Set<string> = new Set();
+  let result: Set<T1> = new Set();
 
   for (let parent of parents(graph, vertex)) {
     result = new Set([...result, parent, ...ancestors(graph, parent)]);
@@ -54,10 +58,14 @@ const ancestors = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const children = (graph: Graph, vertex: string): Set<string> => {
-  const result: Set<string> = new Set();
+const children = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+): Set<T1> => {
+  const result: Set<T1> = new Set();
+  const vertices = Object.keys(graph) as Array<T1>;
 
-  for (let v in graph[vertex]) {
+  for (let v of vertices) {
     if (graph[vertex][v] !== 0) {
       result.add(v);
     }
@@ -66,11 +74,11 @@ const children = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const clone = (graph: Graph): Graph => {
-  const result: Graph = {};
+const clone = <T extends string = string>(graph: Graph<T>): Graph<T> => {
+  const result = {} as Graph<T>;
 
   for (let u in graph) {
-    result[u] = {};
+    result[u] = {} as Graph<T>[T];
     for (let v in graph[u]) {
       result[u][v] = graph[u][v];
     }
@@ -79,14 +87,14 @@ const clone = (graph: Graph): Graph => {
   return result;
 };
 
-const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(10)): Graph => {
-  const result: Graph = {};
+const create = <T extends string = string>(size: number, identFn: (i: number) => T): Graph<T> => {
+  const result = {} as Graph<T>;
 
   for (let i = 0; i < size; i++) {
-    const u = id(i);
-    result[u] = {};
+    const u = identFn(i);
+    result[u] = {} as Graph<T>[T];
     for (let j = 0; j < size; j++) {
-      const v = id(j);
+      const v = identFn(j);
       result[u][v] = 0;
     }
   }
@@ -94,9 +102,9 @@ const create = (size: number = 0, id: (i: number) => string = (i) => i.toString(
   return result;
 };
 
-const degree = (
-  graph: Graph,
-  vertex: string,
+const degree = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
   options?: { weighted?: boolean; undirected?: boolean },
 ): number => {
   if (options?.undirected && !isUndirected(graph)) {
@@ -111,12 +119,15 @@ const degree = (
   );
 };
 
-const descendants = (graph: Graph, vertex: string): Set<string> => {
+const descendants = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+): Set<T1> => {
   if (isCyclic(graph)) {
     throw Error("Cannot retrieve descendants in a graph that contains cycles.");
   }
 
-  let result: Set<string> = new Set();
+  let result: Set<T1> = new Set();
 
   for (let child of children(graph, vertex)) {
     result = new Set([...result, child, ...descendants(graph, child)]);
@@ -125,16 +136,20 @@ const descendants = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const edges = (graph: Graph, options?: { undirected?: boolean }): Set<Edge> => {
+const edges = <T extends string = string>(
+  graph: Graph<T>,
+  options?: { undirected?: boolean },
+): Set<[T, T]> => {
   if (options?.undirected && !isUndirected(graph)) {
     throw Error("Expected undirected graph, but got a directed graph.");
   }
 
   const resolvedGraph = options?.undirected ? toDirected(graph) : graph;
-  const result: Set<Edge> = new Set([]);
+  const result: Set<[T, T]> = new Set([]);
+  const vertices = Object.keys(resolvedGraph) as Array<T>;
 
-  for (let u in resolvedGraph) {
-    for (let v in resolvedGraph[u]) {
+  for (let u of vertices) {
+    for (let v of vertices) {
       if (resolvedGraph[u][v] !== 0) {
         result.add([u, v]);
       }
@@ -144,11 +159,14 @@ const edges = (graph: Graph, options?: { undirected?: boolean }): Set<Edge> => {
   return result;
 };
 
-const fromD3 = (d3Graph: D3Graph, options?: { undirected?: boolean }): Graph => {
-  const result: Graph = {};
+const fromD3 = <T extends string = string>(
+  d3Graph: D3Graph<T>,
+  options?: { undirected?: boolean },
+): Graph<T> => {
+  const result = {} as Graph<T>;
 
   for (let u of d3Graph.nodes) {
-    result[u.id] = {};
+    result[u.id] = {} as Graph<T>[T];
     for (let v of d3Graph.nodes) {
       result[u.id][v.id] = 0;
     }
@@ -162,9 +180,13 @@ const fromD3 = (d3Graph: D3Graph, options?: { undirected?: boolean }): Graph => 
   return result;
 };
 
-const getEdge = (graph: Graph, [u, v]: Edge): number => graph[u][v];
+const getEdge = <T extends string = string>(graph: Graph<T>, [u, v]: [T, T]): number => graph[u][v];
 
-const indegree = (graph: Graph, vertex: string, options?: { weighted?: boolean }): number => {
+const indegree = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+  options?: { weighted?: boolean },
+): number => {
   let result = 0;
 
   for (let u in graph) {
@@ -243,10 +265,10 @@ const isUndirected = (graph: Graph): boolean => {
   return true;
 };
 
-const makeUndirected = (
-  graph: Graph,
+const makeUndirected = <T extends string = string>(
+  graph: Graph<T>,
   merge: (a: number, b: number) => number = (a, b) => Math.max(a, b),
-): Graph => {
+): Graph<T> => {
   const result = clone(graph);
 
   for (let [u, v] of vertexPairs(graph)) {
@@ -267,7 +289,11 @@ const order = (graph: Graph): number => {
   return result;
 };
 
-const outdegree = (graph: Graph, vertex: string, options?: { weighted?: boolean }): number => {
+const outdegree = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+  options?: { weighted?: boolean },
+): number => {
   let result = 0;
 
   for (let v in graph[vertex]) {
@@ -279,8 +305,11 @@ const outdegree = (graph: Graph, vertex: string, options?: { weighted?: boolean 
   return result;
 };
 
-const parents = (graph: Graph, vertex: string): Set<string> => {
-  const result: Set<string> = new Set();
+const parents = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+): Set<T1> => {
+  const result: Set<T1> = new Set();
 
   for (let u in graph) {
     if (graph[u][vertex] !== 0) {
@@ -291,7 +320,11 @@ const parents = (graph: Graph, vertex: string): Set<string> => {
   return result;
 };
 
-const removeEdge = (graph: Graph, [u, v]: Edge, options?: { undirected?: boolean }): Graph => {
+const removeEdge = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  [u, v]: [T2, T2],
+  options?: { undirected?: boolean },
+): Graph<T1> => {
   const result = clone(graph);
 
   result[u][v] = 0;
@@ -300,14 +333,17 @@ const removeEdge = (graph: Graph, [u, v]: Edge, options?: { undirected?: boolean
   return result;
 };
 
-const removeVertex = (graph: Graph, vertex: string): Graph => {
-  const result: Graph = {};
+const removeVertex = <T1 extends string = string, T2 extends T1 = T1>(
+  graph: Graph<T1>,
+  vertex: T2,
+): Graph<Exclude<T1, T2>> => {
+  const result = {} as Graph<Exclude<T1, T2>>;
+  const vertices = Object.keys(graph) as Array<T1>;
+  const newVertices = vertices.filter((x): x is Exclude<T1, T2> => x !== vertex);
 
-  for (let u in graph) {
-    if (u === vertex) continue;
-    result[u] = {};
-    for (let v in graph[u]) {
-      if (v === vertex) continue;
+  for (let u of newVertices) {
+    result[u] = {} as Graph<Exclude<T1, T2>>[Exclude<T1, T2>];
+    for (let v of newVertices) {
       result[u][v] = graph[u][v];
     }
   }
@@ -315,12 +351,12 @@ const removeVertex = (graph: Graph, vertex: string): Graph => {
   return result;
 };
 
-const setEdge = (
-  graph: Graph,
-  [u, v]: Edge,
+const setEdge = <T extends string = string>(
+  graph: Graph<T>,
+  [u, v]: [T, T],
   weight: number,
   options?: { undirected?: boolean },
-): Graph => {
+): Graph<T> => {
   const result = clone(graph);
 
   result[u][v] = weight;
@@ -348,18 +384,22 @@ const size = (graph: Graph, options?: { undirected?: boolean }): number => {
   return result;
 };
 
-const toD3 = (graph: Graph, options?: { undirected?: boolean }): D3Graph => {
+const toD3 = <T extends string = string>(
+  graph: Graph<T>,
+  options?: { undirected?: boolean },
+): D3Graph<T> => {
   if (options?.undirected && !isUndirected(graph)) {
     throw Error("Expected undirected graph, but got a directed graph.");
   }
 
   const resolvedGraph = options?.undirected ? toDirected(graph) : graph;
-  const nodes: Array<{ id: string }> = [];
-  const links: Array<{ source: string; target: string }> = [];
+  const nodes: Array<{ id: T }> = [];
+  const links: Array<{ source: T; target: T }> = [];
+  const vertices = Object.keys(resolvedGraph) as Array<T>;
 
-  for (let u in resolvedGraph) {
+  for (let u of vertices) {
     nodes[nodes.length] = { id: u };
-    for (let v in resolvedGraph[u]) {
+    for (let v of vertices) {
       if (resolvedGraph[u][v] !== 0) {
         let i = resolvedGraph[u][v];
         do {
@@ -373,18 +413,20 @@ const toD3 = (graph: Graph, options?: { undirected?: boolean }): D3Graph => {
   return { nodes, links };
 };
 
-const toDirected = (graph: Graph): Graph => {
+const toDirected = <T extends string = string>(graph: Graph<T>): Graph<T> => {
   if (!isUndirected(graph)) {
     return graph;
   }
 
-  const result: Graph = {};
-  const vertices = Object.keys(graph);
+  const result = {} as Graph<T>;
+  const vertices = Object.keys(graph) as Array<T>;
 
   for (let u = 0; u < vertices.length; u++) {
-    result[vertices[u]] = {};
+    result[vertices[u]] = {} as Graph<T>[T];
     for (let v = 0; v < vertices.length; v++) {
-      result[vertices[u]][vertices[v]] = v >= u ? graph[vertices[u]][vertices[v]] : 0;
+      const uuu = vertices[u];
+      const vvv = vertices[v];
+      result[uuu][vvv] = v >= u ? graph[vertices[u]][vertices[v]] : 0;
     }
   }
 
@@ -398,8 +440,9 @@ const topologicalSort = (graph: Graph): Array<string> => {
   const visited: Set<string> = new Set();
   const queue: Array<string> = [];
   const indegrees: { [id: string]: number } = {};
+  const vertices = Object.keys(graph);
 
-  for (let v of vertices(graph)) {
+  for (let v of vertices) {
     indegrees[v] = indegree(graph, v);
   }
 
@@ -427,12 +470,13 @@ const topologicalSort = (graph: Graph): Array<string> => {
   return result;
 };
 
-const transpose = (graph: Graph): Graph => {
-  const result: Graph = {};
+const transpose = <T extends string = string>(graph: Graph<T>): Graph<T> => {
+  const result = {} as Graph<T>;
+  const vertices = Object.keys(graph) as Array<T>;
 
-  for (let u in graph) {
-    result[u] = {};
-    for (let v in graph[u]) {
+  for (let u of vertices) {
+    result[u] = {} as Graph<T>[T];
+    for (let v of vertices) {
       result[u][v] = graph[v][u];
     }
   }
@@ -440,11 +484,12 @@ const transpose = (graph: Graph): Graph => {
   return result;
 };
 
-const vertices = (graph: Graph): Set<string> => new Set(Object.keys(graph));
+const vertices = <T extends string = string>(graph: Graph<T>): Set<T> =>
+  new Set<T>(Object.keys(graph) as Array<T>);
 
-const vertexPairs = (graph: Graph): Set<[string, string]> => {
-  const result: Set<[string, string]> = new Set();
-  const vertices = Object.keys(graph);
+const vertexPairs = <T extends string = string>(graph: Graph<T>): Set<[T, T]> => {
+  const result: Set<[T, T]> = new Set();
+  const vertices = Object.keys(graph) as Array<T>;
 
   for (let u = 0; u < vertices.length; u++) {
     for (let v = u; v < vertices.length; v++) {
@@ -456,8 +501,6 @@ const vertexPairs = (graph: Graph): Set<[string, string]> => {
 };
 
 export {
-  D3Graph,
-  Graph,
   addEdge,
   addVertex,
   ancestors,
@@ -488,3 +531,5 @@ export {
   vertices,
   vertexPairs,
 };
+
+export type { D3Graph, Graph };
