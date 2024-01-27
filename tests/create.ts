@@ -2,14 +2,16 @@ import { create } from "../src";
 import test from "tape";
 
 test("create", (t) => {
-  t.plan(1);
+  t.plan(2);
+
+  t.deepEqual(create([]), {}, "Base case");
 
   t.deepEqual(
-    create(2, (i) => `${i}!`),
+    create(["a", "b"]),
     {
-      "0!": { "0!": 0, "1!": 0 },
-      "1!": { "0!": 0, "1!": 0 },
+      a: { a: 0, b: 0 },
+      b: { a: 0, b: 0 },
     },
-    "Custom ID function is used",
+    "Custom IDs are provided",
   );
 });

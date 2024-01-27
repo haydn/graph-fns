@@ -87,14 +87,12 @@ const clone = <T extends string = string>(graph: Graph<T>): Graph<T> => {
   return result;
 };
 
-const create = <T extends string = string>(size: number, identFn: (i: number) => T): Graph<T> => {
+const create = <T extends string = string>(vertices: Array<T>): Graph<T> => {
   const result = {} as Graph<T>;
 
-  for (let i = 0; i < size; i++) {
-    const u = identFn(i);
+  for (let u of vertices) {
     result[u] = {} as Graph<T>[T];
-    for (let j = 0; j < size; j++) {
-      const v = identFn(j);
+    for (let v of vertices) {
       result[u][v] = 0;
     }
   }
