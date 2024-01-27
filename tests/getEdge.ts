@@ -1,5 +1,5 @@
 import test from "tape";
-import { getEdge } from "..";
+import { getEdge } from "../src";
 
 test("getEdge", (t) => {
   t.plan(1);

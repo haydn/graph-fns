@@ -1,5 +1,5 @@
 import test from "tape";
-import { isUndirected } from "..";
+import { isUndirected } from "../src";
 
 test("isUndirected", (t) => {
   t.plan(4);

@@ -1,5 +1,5 @@
 import test from "tape";
-import { vertices } from "..";
+import { vertices } from "../src";
 
 test("vertices", (t) => {
   t.plan(1);

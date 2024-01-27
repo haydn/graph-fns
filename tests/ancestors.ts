@@ -1,5 +1,5 @@
 import test from "tape";
-import { ancestors } from "..";
+import { ancestors } from "../src";
 
 test("ancestors", (t) => {
   t.plan(3);

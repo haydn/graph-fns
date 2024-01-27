@@ -1,5 +1,5 @@
 import test from "tape";
-import { fromD3 } from "..";
+import { fromD3 } from "../src";
 
 test("fromD3", (t) => {
   t.plan(2);

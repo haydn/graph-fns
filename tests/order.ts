@@ -1,5 +1,5 @@
 import test from "tape";
-import { order } from "..";
+import { order } from "../src";
 
 test("order", (t) => {
   t.plan(3);

@@ -1,5 +1,5 @@
 import test from "tape";
-import { clone } from "..";
+import { clone } from "../src";
 
 test("clone", (t) => {
   t.plan(4);

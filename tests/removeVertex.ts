@@ -1,5 +1,5 @@
 import test from "tape";
-import { removeVertex } from "..";
+import { removeVertex } from "../src";
 
 test("removeVertex", (t) => {
   t.plan(1);

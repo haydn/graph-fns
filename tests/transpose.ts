@@ -1,5 +1,5 @@
 import test from "tape";
-import { transpose } from "..";
+import { transpose } from "../src";
 
 test("transpose", (t) => {
   t.plan(5);

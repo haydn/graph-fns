@@ -1,5 +1,5 @@
 import test from "tape";
-import { isCyclic } from "..";
+import { isCyclic } from "../src";
 
 test("isCyclic", (t) => {
   t.test("directed graph", (t) => {

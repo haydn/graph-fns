@@ -1,5 +1,5 @@
 import test from "tape";
-import { size } from "..";
+import { size } from "../src";
 
 test("size", (t) => {
   t.plan(5);

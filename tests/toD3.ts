@@ -1,5 +1,5 @@
 import test from "tape";
-import { toD3 } from "..";
+import { toD3 } from "../src";
 
 test("toD3", (t) => {
   t.plan(3);

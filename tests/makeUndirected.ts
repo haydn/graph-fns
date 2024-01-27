@@ -1,5 +1,5 @@
 import test from "tape";
-import { makeUndirected } from "..";
+import { makeUndirected } from "../src";
 
 test("makeUndirected", (t) => {
   t.plan(5);

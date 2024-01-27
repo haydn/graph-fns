@@ -17,13 +17,13 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "yarn build:declaration && yarn build:cjs && yarn build:umd && yarn build:esm",
-    "build:declaration": "tsc index.ts --downlevelIteration --declaration --emitDeclarationOnly && flowgen index.d.ts -o index.js.flow",
-    "build:cjs": "tsc index.ts --downlevelIteration --target ES2015 --module CommonJS --outDir cjs",
-    "build:umd": "tsc index.ts --downlevelIteration --target ES2015 --module UMD --outDir umd",
-    "build:esm": "tsc index.ts --target ESNext --module ESNext --outDir esm",
+    "build": "yarn build:dec && yarn build:cjs && yarn build:umd && yarn build:esm && cp ./dec/* ./",
+    "build:dec": "tsc --project ./tsconfig.dec.json && flowgen ./dec/index.d.ts -o ./dec/index.js.flow",
+    "build:cjs": "tsc --project ./tsconfig.cjs.json",
+    "build:umd": "tsc --project ./tsconfig.umd.json",
+    "build:esm": "tsc --project ./tsconfig.esm.json",
     "release": "np",
-    "test": "prettier -c **/*.ts **/*.md && tsc && tape tests/**/*.js",
+    "test": "prettier -c {src,tests}/**/*.ts **/*.md && tsc && tape tests/**/*.js",
     "version": "yarn build"
   },
   "files": [
@@ -42,7 +42,7 @@
     "np": "^9.2.0",
     "prettier": "^2.2.1",
     "tape": "^5.0.1",
-    "typescript": "^4.1.3"
+    "typescript": "^5.3.3"
   },
   "prettier": {
     "arrowParens": "always",

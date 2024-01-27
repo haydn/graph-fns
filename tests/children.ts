@@ -1,5 +1,5 @@
 import test from "tape";
-import { children } from "..";
+import { children } from "../src";
 
 test("children", (t) => {
   t.plan(2);

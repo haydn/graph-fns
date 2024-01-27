@@ -1,5 +1,5 @@
 import test from "tape";
-import { topologicalSort } from "..";
+import { topologicalSort } from "../src";
 
 test("topologicalSort", (t) => {
   t.plan(6);

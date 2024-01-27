@@ -1,5 +1,5 @@
 import test from "tape";
-import { indegree } from "..";
+import { indegree } from "../src";
 
 test("indegree", (t) => {
   t.plan(2);

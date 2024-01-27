@@ -1,4 +1,4 @@
-import { create } from "..";
+import { create } from "../src";
 import test from "tape";
 
 test("create", (t) => {

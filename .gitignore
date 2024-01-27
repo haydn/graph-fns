@@ -1,9 +1,10 @@
+*.tsbuildinfo
 /.vscode
 /**/*.d.ts
 /**/*.js
 /**/*.js.flow
 /cjs
+/dec
 /esm
 /node_modules
-/tsconfig.tsbuildinfo
 /umd

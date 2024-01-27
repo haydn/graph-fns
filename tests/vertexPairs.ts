@@ -1,5 +1,5 @@
 import test from "tape";
-import { vertexPairs } from "..";
+import { vertexPairs } from "../src";
 
 test("vertexPairs", (t) => {
   t.plan(1);

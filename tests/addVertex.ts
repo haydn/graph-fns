@@ -1,4 +1,4 @@
-import { addVertex } from "..";
+import { addVertex } from "../src";
 import test from "tape";
 
 test("addVertex", (t) => {
